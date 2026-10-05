@@ -8,13 +8,17 @@ export default function SettingsScreen() {
   return (
     <div className="settings-screen">
       <div className="settings-screen__header">
-        <span className="settings-screen__name">namenamename</span>
+        <div className="settings-screen__identity">
+          <span className="hud-label">System // Account</span>
+          <span className="settings-screen__name">namenamename</span>
+        </div>
         <button type="button" className="settings-screen__logout">
           ログアウト
         </button>
       </div>
 
-      <div className="settings-card">
+      <div className="settings-card glass">
+        <span className="hud-label settings-card__code">Security layer 01</span>
         <p className="settings-card__title">アカウントパスワード</p>
         <p className="settings-card__dots">●●●●●●●●●●●●</p>
 
@@ -33,7 +37,8 @@ export default function SettingsScreen() {
         </button>
       </div>
 
-      <div className="settings-card">
+      <div className="settings-card glass">
+        <span className="hud-label settings-card__code">Security layer 02</span>
         <p className="settings-card__title">鍵番号</p>
         <p className="settings-card__dots">●●●●●●●●●●●●</p>
 

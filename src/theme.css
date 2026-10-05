@@ -1,13 +1,37 @@
 :root {
-  --color-background: #faf7f2;
-  --color-surface: #ffffff;
-  --color-border: #ece6dc;
-  --color-text: #2b2620;
-  --color-text-muted: #8a8378;
-  --color-primary: #c97b4a;
-  --color-primary-muted: #f0dcc9;
-  --color-accent: #7a8b6f;
-  --color-danger: #c4573f;
+  /* ベース（深宇宙 / サイバー空間） */
+  --color-background: #0a0a16;
+  --color-background-deep: #05050d;
+  --color-surface: rgba(20, 22, 48, 0.55);
+  --color-surface-strong: rgba(26, 28, 62, 0.78);
+  --color-border: rgba(0, 240, 255, 0.18);
+  --color-border-strong: rgba(0, 240, 255, 0.45);
+  --color-text: #e8ecff;
+  --color-text-muted: #8a90bd;
+  --color-on-neon: #05050d;
+
+  /* ネオンアクセント */
+  --neon-blue: #00f0ff;
+  --neon-purple: #8a2be2;
+  --neon-pink: #ff007f;
+
+  --color-primary: var(--neon-blue);
+  --color-primary-muted: rgba(0, 240, 255, 0.12);
+  --color-accent: var(--neon-purple);
+  --color-accent-light: #b77bff;
+  --color-danger: var(--neon-pink);
+
+  --gradient-neon: linear-gradient(120deg, var(--neon-blue) 0%, var(--neon-purple) 55%, var(--neon-pink) 100%);
+
+  --glow-blue: 0 0 6px rgba(0, 240, 255, 0.6), 0 0 22px rgba(0, 240, 255, 0.35);
+  --glow-purple: 0 0 6px rgba(138, 43, 226, 0.7), 0 0 22px rgba(138, 43, 226, 0.4);
+  --glow-pink: 0 0 6px rgba(255, 0, 127, 0.65), 0 0 22px rgba(255, 0, 127, 0.35);
+
+  --glass-blur: blur(16px) saturate(140%);
+
+  --font-body: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Orbitron', var(--font-body);
+  --font-mono: 'Share Tech Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --space-xs: 4px;
   --space-sm: 8px;
@@ -19,6 +43,8 @@
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-pill: 999px;
+
+  color-scheme: dark;
 }
 
 * {
@@ -34,10 +60,62 @@ body {
 body {
   background: var(--color-background);
   color: var(--color-text);
-  font-family: 'Hiragino Sans', 'Yu Gothic', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
 button {
   font-family: inherit;
+}
+
+::selection {
+  background: rgba(255, 0, 127, 0.45);
+  color: #fff;
+}
+
+/* 共通: ガラスパネル */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* 共通: デジタル小見出し */
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* スクロールバー */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 240, 255, 0.35) transparent;
+}
+
+/* 共通アニメーション */
+@keyframes ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

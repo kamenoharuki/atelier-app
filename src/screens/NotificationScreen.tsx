@@ -24,7 +24,7 @@ export default function NotificationScreen() {
 
   return (
     <div className="notification-screen">
-      <div className="segmented">
+      <div className="segmented glass">
         {(['お知らせ', 'ランキング'] as SubTab[]).map((tab) => (
           <button
             key={tab}
@@ -40,13 +40,14 @@ export default function NotificationScreen() {
       <div className="notification-screen__list">
         {subTab === 'お知らせ'
           ? NOTICES.map((text, i) => (
-              <div key={i} className="row">
+              <div key={i} className="row glass">
+                <span className="row__code">SIG-{String(NOTICES.length - i).padStart(3, '0')}</span>
                 <p>{text}</p>
               </div>
             ))
           : RANKING.map((entry, i) => (
-              <div key={entry.name} className="rank-row">
-                <span className="rank-row__index">{i + 1}</span>
+              <div key={entry.name} className={`rank-row glass ${i < 3 ? `is-top is-top-${i + 1}` : ''}`}>
+                <span className="rank-row__index">{String(i + 1).padStart(2, '0')}</span>
                 <span>{entry.name}</span>
                 <span className="rank-row__count">{entry.count}</span>
               </div>
