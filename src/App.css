@@ -1,0 +1,47 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+  background: linear-gradient(180deg, #f3ece1 0%, var(--color-background) 240px);
+}
+
+.phone {
+  width: 100%;
+  max-width: 420px;
+  height: min(880px, 92vh);
+  background: var(--color-background);
+  border-radius: 36px;
+  box-shadow: 0 30px 60px -20px rgba(43, 38, 32, 0.35), 0 0 0 10px #1e1b17;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.phone__screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: var(--space-sm);
+}
+
+.phone__content {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: var(--space-md);
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 0;
+  }
+
+  .phone {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

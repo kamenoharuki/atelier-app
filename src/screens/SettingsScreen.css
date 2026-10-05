@@ -1,0 +1,85 @@
+.settings-screen {
+  padding: 0 var(--space-lg) var(--space-xl);
+}
+
+.settings-screen__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) 0;
+}
+
+.settings-screen__name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-screen__logout {
+  font-size: 14px;
+  color: var(--color-danger);
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.settings-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.settings-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-card__dots {
+  margin: 0 0 var(--space-xs);
+  font-size: 16px;
+  color: var(--color-text);
+  letter-spacing: 2px;
+}
+
+.settings-card__label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-top: var(--space-sm);
+}
+
+.required {
+  color: var(--color-danger);
+}
+
+.settings-card__input {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px var(--space-md);
+  font-size: 14px;
+  color: var(--color-text);
+  font-family: inherit;
+  outline: none;
+}
+
+.settings-card__button {
+  margin-top: var(--space-sm);
+  padding: 12px;
+  border-radius: var(--radius-pill);
+  text-align: center;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}

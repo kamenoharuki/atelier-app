@@ -1,3 +1,4 @@
-# Expo HAS CHANGED
+# Stack
 
-Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before writing any code.
+React + Vite（TypeScript）のシンプルなWeb構成です。Expo / React Native は使用しません。
+バックエンドやDBは持たず、`src/data.ts` のダミーデータのみで画面を構成しています。

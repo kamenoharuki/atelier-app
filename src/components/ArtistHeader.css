@@ -1,0 +1,52 @@
+.artist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-lg) var(--space-md);
+}
+
+.artist-header__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.artist-header__avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.artist-header__name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artist-header__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-sm);
+  border-radius: var(--radius-pill);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.artist-header__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
