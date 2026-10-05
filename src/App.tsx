@@ -14,13 +14,13 @@ export default function App() {
 
   return (
     <div className="page">
-      <div className="phone">
-        <div className="phone__screen">
+      <div className="app">
+        <div className="app__screen">
           {tab !== 'settings' && (
             <ArtistHeader name="namenamename" status={status} onChangeStatus={setStatus} />
           )}
 
-          <div className="phone__content">
+          <div className="app__content">
             {tab === 'home' && <HomeScreen />}
             {tab === 'notification' && <NotificationScreen />}
             {tab === 'settings' && <SettingsScreen />}
