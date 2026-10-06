@@ -337,7 +337,7 @@
   font-weight: 600;
   color: var(--color-accent);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
 
 .gift-button:hover {
@@ -362,6 +362,118 @@
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
+}
+
+/* ギフト送信アニメーション */
+.gift-button {
+  position: relative;
+}
+
+.gift-button:active {
+  transform: scale(0.96);
+}
+
+.gift-button__icon {
+  display: inline-flex;
+}
+
+.gift-button.is-sending .gift-button__icon {
+  animation: gift-wiggle 0.5s ease-out;
+}
+
+.gift-button.is-sending .gift-button__count {
+  animation: gift-count-bump 0.35s ease-out;
+}
+
+.gift-burst {
+  position: absolute;
+  left: 19px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.gift-burst__ring {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-accent);
+  opacity: 0;
+  animation: gift-ring 0.55s ease-out forwards;
+}
+
+.gift-burst__plus {
+  position: absolute;
+  left: 50px;
+  top: -10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent);
+  white-space: nowrap;
+  opacity: 0;
+  animation: gift-plus 0.85s ease-out forwards;
+}
+
+.gift-burst__particle {
+  position: absolute;
+  opacity: 0;
+  animation: gift-particle 0.75s cubic-bezier(0.2, 0.7, 0.3, 1) var(--delay, 0ms) forwards;
+}
+
+.gift-burst__particle--heart {
+  left: -5.5px;
+  top: -5.5px;
+  display: inline-flex;
+  color: #f0a6c8;
+}
+
+.gift-burst__particle--heart svg {
+  fill: currentColor;
+}
+
+.gift-burst__particle--spark {
+  left: -2.5px;
+  top: -2.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+@keyframes gift-wiggle {
+  0% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.35) rotate(-14deg); }
+  55% { transform: scale(1.1) rotate(10deg); }
+  80% { transform: scale(1.05) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes gift-count-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); background: var(--color-accent); color: var(--color-on-primary); }
+  100% { transform: scale(1); }
+}
+
+@keyframes gift-ring {
+  0% { transform: scale(0.4); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes gift-plus {
+  0% { transform: translateY(4px); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-22px); opacity: 0; }
+}
+
+@keyframes gift-particle {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  15% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
 }
 
 @media (min-width: 640px) {
