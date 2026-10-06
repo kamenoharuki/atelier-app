@@ -4,36 +4,35 @@ import './TabBar.css';
 
 export type Tab = 'home' | 'notification' | 'settings';
 
+const TABS: { key: Tab; label: string; icon: ReactNode }[] = [
+  { key: 'home', label: 'アトリエ', icon: <HomeIcon /> },
+  { key: 'notification', label: '通知', icon: <BellIcon /> },
+  { key: 'settings', label: '設定', icon: <GearIcon /> },
+];
+
 type Props = {
   active: Tab;
   onChange: (tab: Tab) => void;
 };
 
 export default function TabBar({ active, onChange }: Props) {
-  const tabs: { key: Tab; label: string; icon: (color: string) => ReactNode }[] = [
-    { key: 'home', label: 'ATELIER', icon: (color) => <HomeIcon color={color} /> },
-    { key: 'notification', label: 'SIGNAL', icon: (color) => <BellIcon color={color} /> },
-    { key: 'settings', label: 'SYSTEM', icon: (color) => <GearIcon color={color} /> },
-  ];
-
   return (
-    <div className="tab-bar">
-      {tabs.map((tab) => {
+    <nav className="tab-bar" aria-label="メインメニュー">
+      {TABS.map((tab) => {
         const isActive = tab.key === active;
-        const color = isActive ? 'var(--neon-blue)' : 'var(--color-text-muted)';
         return (
           <button
             key={tab.key}
             type="button"
             className={`tab-bar__item ${isActive ? 'is-active' : ''}`}
             onClick={() => onChange(tab.key)}
-            aria-label={tab.label}
+            aria-current={isActive ? 'page' : undefined}
           >
-            {tab.icon(color)}
+            {tab.icon}
             <span className="tab-bar__label">{tab.label}</span>
           </button>
         );
       })}
-    </div>
+    </nav>
   );
 }

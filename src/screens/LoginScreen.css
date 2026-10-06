@@ -1,0 +1,140 @@
+.login {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg) var(--space-md);
+}
+
+.login__panel {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+}
+
+.login__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.login__mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--gradient-accent);
+  box-shadow: 0 4px 14px rgba(122, 162, 255, 0.25);
+}
+
+.login__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login__title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.login__lead {
+  color: var(--color-text-secondary);
+}
+
+.login__roles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-card {
+  --role-color: var(--color-primary);
+  --role-soft: var(--color-primary-soft);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: rgba(8, 10, 20, 0.4);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.role-card--fan {
+  --role-color: var(--color-accent);
+  --role-soft: var(--color-accent-soft);
+}
+
+.role-card:hover {
+  border-color: var(--role-color);
+  background: var(--role-soft);
+}
+
+.role-card:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.role-card > svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.role-card__icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--role-soft);
+  color: var(--role-color);
+}
+
+.role-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.role-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.role-card__description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.login__note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .login__panel {
+    padding: var(--space-lg);
+  }
+}

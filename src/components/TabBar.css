@@ -1,74 +1,49 @@
 .tab-bar {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-around;
   height: 68px;
-  padding: 8px 0;
-  background: rgba(10, 10, 22, 0.6);
+  padding: 6px var(--space-md);
+  border-top: 1px solid var(--color-border);
+  background: rgba(11, 13, 23, 0.72);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   flex-shrink: 0;
 }
 
-/* 上辺のネオンライン */
-.tab-bar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--gradient-neon);
-  opacity: 0.7;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-}
-
 .tab-bar__item {
-  position: relative;
-  background: none;
-  border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  min-width: 64px;
-  height: 50px;
-  cursor: pointer;
+  gap: 2px;
+  min-width: 80px;
+  height: 52px;
+  border: none;
   border-radius: var(--radius-sm);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.tab-bar__label {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.18em;
+  background: none;
   color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .tab-bar__item:hover {
-  background: var(--color-primary-muted);
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.tab-bar__item.is-active .tab-bar__label {
-  color: var(--neon-blue);
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+.tab-bar__item:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
-.tab-bar__item.is-active svg {
-  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.8));
+.tab-bar__item.is-active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
-.tab-bar__item.is-active::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  width: 28px;
-  height: 2px;
-  transform: translateX(-50%);
-  border-radius: 2px;
-  background: var(--neon-blue);
-  box-shadow: var(--glow-blue);
+.tab-bar__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }

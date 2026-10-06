@@ -1,144 +1,81 @@
 .settings-screen {
-  padding: 0 var(--space-lg) var(--space-xl);
-}
-
-.settings-screen__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-md) 0;
-}
-
-.settings-screen__identity {
+  max-width: 640px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.settings-screen__identity .hud-label {
-  color: var(--neon-blue);
-  opacity: 0.75;
-}
-
-.settings-screen__name {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--color-text);
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
-}
-
-.settings-screen__logout {
-  font-size: 13px;
-  color: var(--neon-pink);
-  font-weight: 700;
-  background: rgba(255, 0, 127, 0.08);
-  border: 1px solid rgba(255, 0, 127, 0.5);
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  padding: 7px 14px;
-  transition: box-shadow 0.2s ease;
-}
-
-.settings-screen__logout:hover {
-  box-shadow: var(--glow-pink);
+  gap: var(--space-md);
+  padding: var(--space-lg);
 }
 
 .settings-card {
-  position: relative;
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-top: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  overflow: hidden;
-}
-
-/* 上辺のグラデーションライン */
-.settings-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--gradient-neon);
-  opacity: 0.6;
-}
-
-.settings-card__code {
-  font-size: 10px;
-  color: var(--color-accent-light);
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radius-md);
 }
 
 .settings-card__title {
-  margin: 0;
   font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
+  font-weight: 600;
 }
 
-.settings-card__dots {
-  margin: 0 0 var(--space-xs);
-  font-size: 14px;
-  color: var(--neon-blue);
-  letter-spacing: 3px;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
-}
-
-.settings-card__label {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--color-text-muted);
-  margin-top: var(--space-sm);
-}
-
-.required {
-  color: var(--neon-pink);
-}
-
-.settings-card__input {
-  background: rgba(5, 5, 13, 0.6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 10px var(--space-md);
-  font-size: 14px;
-  color: var(--color-text);
-  font-family: inherit;
-  outline: none;
-  caret-color: var(--neon-blue);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.settings-card__input::placeholder {
+.settings-card__description {
+  margin-top: -6px;
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 
-.settings-card__input:focus {
-  border-color: var(--neon-blue);
-  box-shadow: var(--glow-blue);
+.settings-card__action {
+  align-self: flex-start;
 }
 
-.settings-card__button {
-  margin-top: var(--space-sm);
-  padding: 12px;
-  border-radius: var(--radius-pill);
-  text-align: center;
-  border: 1px solid var(--color-border-strong);
-  background: rgba(0, 240, 255, 0.06);
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.settings-profile__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-profile__name {
+  font-size: 17px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-profile__role {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
   font-size: 14px;
-  font-weight: 700;
-  color: var(--neon-blue);
-  cursor: pointer;
-  transition: box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-.settings-card__button:hover {
-  background: var(--neon-blue);
-  color: var(--color-on-neon);
-  box-shadow: var(--glow-blue);
+.settings-screen__logout {
+  margin-top: var(--space-sm);
+  height: 44px;
+}
+
+@media (max-width: 480px) {
+  .settings-screen {
+    padding: var(--space-md);
+  }
+
+  .settings-card {
+    padding: var(--space-md);
+  }
 }

@@ -1,0 +1,91 @@
+.app-header {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.app-header__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 4px 10px 4px 4px;
+  margin-left: -4px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.app-header__identity:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.app-header__identity:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.app-header__avatar {
+  position: relative;
+  display: inline-flex;
+}
+
+.app-header__edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-primary);
+}
+
+.app-header__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.app-header__role {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.app-header__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+}
+
+@media (max-width: 420px) {
+  .app-header {
+    padding: 12px var(--space-md);
+    gap: var(--space-sm);
+  }
+}

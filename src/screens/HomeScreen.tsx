@@ -1,40 +1,37 @@
 import { useState } from 'react';
-import type { CSSProperties } from 'react';
-import type { Tag, TimelineItem } from '../data';
-import { initialItems } from '../data';
-import { SendIcon, PlusIcon, CheckIcon, GiftIcon } from '../components/icons';
+import type { ArtistStatus, Role, Tag, TimelineItem } from '../data';
+import { StatusBadge } from '../components/StatusSelect';
+import { SendIcon, PlusIcon, CheckIcon, GiftIcon, HeartIcon } from '../components/icons';
 import './HomeScreen.css';
 
 const TAGS: Tag[] = ['TODO', '悩み'];
 
-// 作品ごとに異なるホログラム色相を割り当てる
-const HUES = [190, 275, 330, 220, 300];
+type Props = {
+  role: Role;
+  artistName: string;
+  status: ArtistStatus;
+  mood: string;
+  items: TimelineItem[];
+  onPostMood: (mood: string) => void;
+  onAddItem: (tag: Tag, text: string) => void;
+  onToggleDone: (id: string) => void;
+  onSendGift: (id: string) => void;
+  onSendCheer: (text: string) => void;
+};
 
-export default function HomeScreen() {
-  const [mood, setMood] = useState('');
-  const [moodDraft, setMoodDraft] = useState('');
-  const [items, setItems] = useState<TimelineItem[]>(initialItems);
-  const [newTag, setNewTag] = useState<Tag>('TODO');
-  const [newText, setNewText] = useState('');
-
-  const postMood = () => {
-    if (!moodDraft.trim()) return;
-    setMood(moodDraft.trim());
-    setMoodDraft('');
-  };
-
-  const addItem = () => {
-    if (!newText.trim()) return;
-    setItems((prev) => [
-      { id: Date.now().toString(), tag: newTag, text: newText.trim(), giftCount: 0, done: false },
-      ...prev,
-    ]);
-    setNewText('');
-  };
-
-  const toggleDone = (id: string) => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, done: !item.done } : item)));
-  };
+export default function HomeScreen({
+  role,
+  artistName,
+  status,
+  mood,
+  items,
+  onPostMood,
+  onAddItem,
+  onToggleDone,
+  onSendGift,
+  onSendCheer,
+}: Props) {
+  const isArtist = role === 'artist';
 
   const sortedItems = [...items].sort((a, b) => Number(a.done) - Number(b.done));
   const activeCount = items.filter((item) => !item.done).length;
@@ -42,65 +39,152 @@ export default function HomeScreen() {
 
   return (
     <div className="home-screen">
-      {/* キービジュアル: 秘密のアトリエ */}
       <section className="hero glass">
-        <div className="hero__orb" aria-hidden="true">
-          <span className="hero__orb-core" />
-          <span className="hero__orb-ring" />
-          <span className="hero__orb-ring hero__orb-ring--2" />
-        </div>
+        <div className="hero__orb" aria-hidden="true" />
         <div className="hero__body">
-          <span className="hud-label hero__access">
-            <span className="hero__blink" /> Access granted · invite only
-          </span>
-          <h1 className="hero__title">
-            SECRET <span>ATELIER</span>
-          </h1>
-          <p className="hero__lead">招待されたメンバーだけが入れる、閉じた制作空間。</p>
-          <div className="hero__stats">
+          <span className="eyebrow">{isArtist ? 'あなたのアトリエ' : `${artistName}さんのアトリエ`}</span>
+          <h1 className="hero__title">Secret Atelier</h1>
+          <p className="hero__lead">
+            {isArtist
+              ? '招待されたファンだけが見られる、あなたの制作スペースです。'
+              : status === 'アトリエ解放中'
+                ? 'ただいまアトリエを解放中です。ギフトや応援を届けましょう。'
+                : '招待されたメンバーだけが入れる、閉じた制作空間です。'}
+          </p>
+          <dl className="hero__stats">
             <div className="hero__stat">
-              <span className="hud-label">Active</span>
-              <strong>{String(activeCount).padStart(2, '0')}</strong>
+              <dt>ステータス</dt>
+              <dd>
+                <StatusBadge status={status} />
+              </dd>
             </div>
             <div className="hero__stat">
-              <span className="hud-label">Gifts</span>
-              <strong>{String(giftTotal).padStart(2, '0')}</strong>
+              <dt>進行中</dt>
+              <dd className="hero__number">{activeCount}</dd>
             </div>
             <div className="hero__stat">
-              <span className="hud-label">Channel</span>
-              <strong className="hero__sealed">SEALED</strong>
+              <dt>ギフト</dt>
+              <dd className="hero__number">{giftTotal}</dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 
-      <div className="home-screen__inputs">
-        {/* 1行のつぶやき入力 */}
-        <div className="card glass mood-card">
-          <span className="hud-label">&gt; broadcast_status</span>
-          {mood ? <p className="mood-card__text">「{mood}」</p> : null}
-          <div className="mood-card__row">
-            <input
-              className="mood-card__input"
-              placeholder="いま何してる？"
-              value={moodDraft}
-              onChange={(e) => setMoodDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && postMood()}
-            />
-            <button type="button" className="icon-button" onClick={postMood} aria-label="つぶやきを送信">
-              <SendIcon size={18} color="var(--color-on-neon)" />
-            </button>
-          </div>
-        </div>
+      {isArtist ? <ArtistInputs mood={mood} onPostMood={onPostMood} onAddItem={onAddItem} /> : <FanInputs artistName={artistName} mood={mood} onSendCheer={onSendCheer} />}
 
-        {/* タグ + 新規追加 */}
-        <div className="card glass add-card">
-          <span className="hud-label">&gt; upload_to_gallery</span>
-          <div className="tag-switch">
+      <div className="section-header">
+        <h2 className="section-header__title">タイムライン</h2>
+        <span className="section-header__meta">{items.length}件</span>
+      </div>
+
+      <div className="gallery">
+        {sortedItems.map((item) => {
+          const isWorry = item.tag === '悩み';
+          return (
+            <article key={item.id} className={`task-card glass ${item.done ? 'is-done' : ''}`}>
+              <div className="task-card__main">
+                {item.tag === 'TODO' ? (
+                  isArtist ? (
+                    <button
+                      type="button"
+                      className={`check-box ${item.done ? 'is-done' : ''}`}
+                      onClick={() => onToggleDone(item.id)}
+                      aria-label={item.done ? '未完了に戻す' : '完了にする'}
+                    >
+                      {item.done && <CheckIcon size={13} />}
+                    </button>
+                  ) : (
+                    <span className={`check-box is-readonly ${item.done ? 'is-done' : ''}`} aria-label={item.done ? '完了' : '未完了'}>
+                      {item.done && <CheckIcon size={13} />}
+                    </span>
+                  )
+                ) : (
+                  <span className="worry-mark" aria-hidden="true" />
+                )}
+                <p className="task-card__text">{item.text}</p>
+              </div>
+
+              <div className="task-card__footer">
+                <span className={`chip ${isWorry ? 'chip--worry' : ''}`}>
+                  {item.tag}
+                  {item.done && ' · 完了'}
+                </span>
+                {isArtist ? (
+                  <span className="gift-count" aria-label={`ギフト ${item.giftCount}件`}>
+                    <GiftIcon size={15} />
+                    {item.giftCount}
+                  </span>
+                ) : (
+                  <button type="button" className="gift-button" onClick={() => onSendGift(item.id)}>
+                    <GiftIcon size={15} />
+                    ギフトを贈る
+                    <span className="gift-button__count">{item.giftCount}</span>
+                  </button>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+type ArtistInputsProps = {
+  mood: string;
+  onPostMood: (mood: string) => void;
+  onAddItem: (tag: Tag, text: string) => void;
+};
+
+function ArtistInputs({ mood, onPostMood, onAddItem }: ArtistInputsProps) {
+  const [moodDraft, setMoodDraft] = useState('');
+  const [newTag, setNewTag] = useState<Tag>('TODO');
+  const [newText, setNewText] = useState('');
+
+  const postMood = () => {
+    if (!moodDraft.trim()) return;
+    onPostMood(moodDraft.trim());
+    setMoodDraft('');
+  };
+
+  const addItem = () => {
+    if (!newText.trim()) return;
+    onAddItem(newTag, newText.trim());
+    setNewText('');
+  };
+
+  return (
+    <div className="home-screen__inputs">
+      <div className="card glass">
+        <div className="card__header">
+          <h2 className="card__title">ひとこと</h2>
+          <span className="card__hint">ファンに表示されます</span>
+        </div>
+        {mood && <p className="mood-text">「{mood}」</p>}
+        <div className="card__row">
+          <input
+            className="input"
+            placeholder="いま何してる？"
+            value={moodDraft}
+            onChange={(e) => setMoodDraft(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && postMood()}
+          />
+          <button type="button" className="icon-btn icon-btn--primary" onClick={postMood} aria-label="ひとことを投稿">
+            <SendIcon size={17} />
+          </button>
+        </div>
+      </div>
+
+      <div className="card glass">
+        <div className="card__header">
+          <h2 className="card__title">タイムラインに追加</h2>
+          <div className="tag-switch" role="radiogroup" aria-label="種類">
             {TAGS.map((tag) => (
               <button
                 key={tag}
                 type="button"
+                role="radio"
+                aria-checked={newTag === tag}
                 className={`tag-switch__option ${newTag === tag ? 'is-active' : ''} ${tag === '悩み' ? 'is-worry' : ''}`}
                 onClick={() => setNewTag(tag)}
               >
@@ -108,71 +192,74 @@ export default function HomeScreen() {
               </button>
             ))}
           </div>
-          <div className="add-card__row">
-            <input
-              className="add-card__input"
-              placeholder={newTag === 'TODO' ? '新しいタスクを追加' : '悩みを共有する'}
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addItem()}
-            />
-            <button type="button" className="icon-button icon-button--alt" onClick={addItem} aria-label="追加">
-              <PlusIcon size={20} color="#fff" />
-            </button>
-          </div>
+        </div>
+        <div className="card__row">
+          <input
+            className="input"
+            placeholder={newTag === 'TODO' ? '新しいタスクを追加' : '悩みを共有する'}
+            value={newText}
+            onChange={(e) => setNewText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addItem()}
+          />
+          <button type="button" className="icon-btn icon-btn--primary" onClick={addItem} aria-label="追加">
+            <PlusIcon size={18} />
+          </button>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* TODOタイムライン（デジタルギャラリー） */}
-      <div className="section-label">
-        <span>タイムライン</span>
-        <span className="hud-label">Gallery · {items.length} exhibits</span>
+type FanInputsProps = {
+  artistName: string;
+  mood: string;
+  onSendCheer: (text: string) => void;
+};
+
+function FanInputs({ artistName, mood, onSendCheer }: FanInputsProps) {
+  const [draft, setDraft] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const send = () => {
+    if (!draft.trim()) return;
+    onSendCheer(draft.trim());
+    setDraft('');
+    setSent(true);
+  };
+
+  return (
+    <div className="home-screen__inputs">
+      <div className="card glass">
+        <div className="card__header">
+          <h2 className="card__title">{artistName}さんのひとこと</h2>
+        </div>
+        <p className={mood ? 'mood-text' : 'card__empty'}>{mood ? `「${mood}」` : 'まだ投稿はありません'}</p>
       </div>
-      <div className="gallery">
-        {sortedItems.map((item, i) => {
-          const isWorry = item.tag === '悩み';
-          const hue = HUES[Number(item.id) % HUES.length] ?? HUES[0];
-          return (
-            <article
-              key={item.id}
-              className={`exhibit glass ${item.done ? 'is-done' : ''} ${isWorry ? 'is-worry' : ''}`}
-              style={{ '--hue': hue, '--delay': `${(i % 6) * -0.9}s` } as CSSProperties}
-            >
-              <div className="exhibit__canvas" aria-hidden="true">
-                <span className="exhibit__index">#{String(i + 1).padStart(3, '0')}</span>
-                <span className="exhibit__shape" />
-              </div>
 
-              <div className="exhibit__body">
-                {item.tag === 'TODO' ? (
-                  <button
-                    type="button"
-                    className={`check-circle ${item.done ? 'is-done' : ''}`}
-                    onClick={() => toggleDone(item.id)}
-                    aria-label={item.done ? '未完了に戻す' : '完了にする'}
-                  >
-                    {item.done && <CheckIcon size={14} color="var(--color-on-neon)" />}
-                  </button>
-                ) : (
-                  <span className="worry-dot" />
-                )}
-
-                <div className="exhibit__text-wrap">
-                  <span className={`item-tag ${isWorry ? 'is-worry' : ''}`}>
-                    {item.tag}
-                    {item.done && <span className="item-tag__state"> // COMPLETE</span>}
-                  </span>
-                  <p className={`exhibit__text ${item.done ? 'is-done' : ''}`}>{item.text}</p>
-                </div>
-
-                <div className="gift-badge">
-                  <GiftIcon size={14} color="var(--neon-pink)" />
-                  <span>{item.giftCount}</span>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+      <div className="card glass">
+        <div className="card__header">
+          <h2 className="card__title">応援メッセージ</h2>
+          {sent && (
+            <span className="card__success" role="status">
+              <HeartIcon size={13} /> 送信しました
+            </span>
+          )}
+        </div>
+        <div className="card__row">
+          <input
+            className="input"
+            placeholder="制作を応援するひとことを送る"
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              setSent(false);
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && send()}
+          />
+          <button type="button" className="icon-btn icon-btn--primary" onClick={send} aria-label="応援メッセージを送信">
+            <SendIcon size={17} />
+          </button>
+        </div>
       </div>
     </div>
   );

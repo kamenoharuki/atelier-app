@@ -1,37 +1,40 @@
 :root {
-  /* ベース（深宇宙 / サイバー空間） */
-  --color-background: #0a0a16;
-  --color-background-deep: #05050d;
-  --color-surface: rgba(20, 22, 48, 0.55);
-  --color-surface-strong: rgba(26, 28, 62, 0.78);
-  --color-border: rgba(0, 240, 255, 0.18);
-  --color-border-strong: rgba(0, 240, 255, 0.45);
-  --color-text: #e8ecff;
-  --color-text-muted: #8a90bd;
-  --color-on-neon: #05050d;
+  /* ベース（落ち着いたダークサイバー） */
+  --color-background: #0b0d17;
+  --color-background-raised: #10132a;
+  --color-surface: rgba(22, 26, 50, 0.55);
+  --color-surface-strong: rgba(30, 35, 66, 0.7);
+  --color-surface-solid: #151935;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(122, 162, 255, 0.45);
+  --color-text: #e6e9f5;
+  --color-text-secondary: #b4bad3;
+  --color-text-muted: #8389a6;
 
-  /* ネオンアクセント */
-  --neon-blue: #00f0ff;
-  --neon-purple: #8a2be2;
-  --neon-pink: #ff007f;
+  /* アクセント（サイバーブルー / パープル） */
+  --color-primary: #7aa2ff;
+  --color-primary-hover: #93b4ff;
+  --color-primary-soft: rgba(122, 162, 255, 0.14);
+  --color-accent: #a78bfa;
+  --color-accent-soft: rgba(167, 139, 250, 0.14);
+  --color-danger: #f0899e;
+  --color-danger-soft: rgba(240, 137, 158, 0.1);
+  --color-on-primary: #0b0d17;
+  --gradient-accent: linear-gradient(135deg, #7aa2ff, #a78bfa);
 
-  --color-primary: var(--neon-blue);
-  --color-primary-muted: rgba(0, 240, 255, 0.12);
-  --color-accent: var(--neon-purple);
-  --color-accent-light: #b77bff;
-  --color-danger: var(--neon-pink);
+  /* ステータス */
+  --status-online: #5fd4a4;
+  --status-working: #7aa2ff;
+  --status-open: #a78bfa;
+  --status-break: #e6b866;
+  --status-offline: #7c8199;
 
-  --gradient-neon: linear-gradient(120deg, var(--neon-blue) 0%, var(--neon-purple) 55%, var(--neon-pink) 100%);
+  --glass-blur: blur(18px) saturate(120%);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 3px rgba(122, 162, 255, 0.3);
 
-  --glow-blue: 0 0 6px rgba(0, 240, 255, 0.6), 0 0 22px rgba(0, 240, 255, 0.35);
-  --glow-purple: 0 0 6px rgba(138, 43, 226, 0.7), 0 0 22px rgba(138, 43, 226, 0.4);
-  --glow-pink: 0 0 6px rgba(255, 0, 127, 0.65), 0 0 22px rgba(255, 0, 127, 0.35);
-
-  --glass-blur: blur(16px) saturate(140%);
-
-  --font-body: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Orbitron', var(--font-body);
-  --font-mono: 'Share Tech Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --font-body: 'Inter', 'Noto Sans JP', system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
 
   --space-xs: 4px;
   --space-sm: 8px;
@@ -40,8 +43,8 @@
   --space-xl: 32px;
 
   --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-pill: 999px;
 
   color-scheme: dark;
@@ -61,53 +64,223 @@ body {
   background: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-button {
+button,
+input {
   font-family: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }
 
 ::selection {
-  background: rgba(255, 0, 127, 0.45);
+  background: rgba(122, 162, 255, 0.35);
   color: #fff;
 }
 
-/* 共通: ガラスパネル */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+/* ===== 共通: ガラスパネル ===== */
 .glass {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card);
 }
 
-/* 共通: デジタル小見出し */
-.hud-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+/* ===== 共通: 小見出し ===== */
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--color-text-muted);
 }
 
-/* スクロールバー */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 240, 255, 0.35) transparent;
+/* ===== 共通: ボタン ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-/* 共通アニメーション */
-@keyframes ring-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
-@keyframes pulse {
-  50% {
-    opacity: 0.35;
-  }
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn--secondary {
+  background: var(--color-surface-strong);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn--secondary:hover {
+  border-color: var(--color-border-strong);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+}
+
+.btn--danger {
+  background: var(--color-danger-soft);
+  border-color: rgba(240, 137, 158, 0.3);
+  color: var(--color-danger);
+}
+
+.btn--danger:hover {
+  background: rgba(240, 137, 158, 0.16);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.icon-btn:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.icon-btn--primary {
+  background: var(--color-primary);
+  border-color: transparent;
+  color: var(--color-on-primary);
+}
+
+.icon-btn--primary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-on-primary);
+}
+
+/* ===== 共通: 入力 ===== */
+.input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: rgba(8, 10, 20, 0.55);
+  font-size: 15px;
+  color: var(--color-text);
+  outline: none;
+  caret-color: var(--color-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.field__hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.field__error {
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+/* ===== 共通: チップ / ステータス ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.chip--worry {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--status-color, var(--status-working));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-color, var(--status-working)) 22%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,74 +2,34 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   background:
-    radial-gradient(ellipse 80% 50% at 15% 0%, rgba(138, 43, 226, 0.35), transparent 60%),
-    radial-gradient(ellipse 60% 45% at 100% 30%, rgba(0, 240, 255, 0.16), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 50% 110%, rgba(255, 0, 127, 0.2), transparent 60%),
-    linear-gradient(180deg, var(--color-background-deep) 0%, var(--color-background) 100%);
+    radial-gradient(ellipse 70% 45% at 10% 0%, rgba(91, 110, 230, 0.16), transparent 65%),
+    radial-gradient(ellipse 55% 40% at 100% 20%, rgba(140, 100, 230, 0.12), transparent 65%),
+    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(80, 120, 220, 0.1), transparent 65%),
+    var(--color-background);
   overflow: hidden;
 }
 
-/* 星屑 */
+/* うっすらとしたグリッド（静止） */
 .page::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(1px 1px at 72% 12%, rgba(0, 240, 255, 0.9), transparent),
-    radial-gradient(1.5px 1.5px at 38% 62%, rgba(255, 255, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 88% 74%, rgba(255, 0, 127, 0.9), transparent),
-    radial-gradient(1px 1px at 22% 86%, rgba(183, 123, 255, 0.9), transparent),
-    radial-gradient(1px 1px at 58% 34%, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 92% 40%, rgba(255, 255, 255, 0.7), transparent);
-  animation: twinkle 6s ease-in-out infinite alternate;
-}
-
-/* 遠近グリッドの床 */
-.page::after {
-  content: '';
-  position: fixed;
-  left: -50%;
-  right: -50%;
-  bottom: -10%;
-  height: 55%;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(0, 240, 255, 0.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(138, 43, 226, 0.22) 1px, transparent 1px);
-  background-size: 56px 56px;
-  transform: perspective(420px) rotateX(62deg);
-  transform-origin: bottom;
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 85%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 85%);
-  animation: grid-scroll 8s linear infinite;
-}
-
-@keyframes twinkle {
-  from {
-    opacity: 0.45;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes grid-scroll {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 0 56px;
-  }
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 75%);
 }
 
 .app {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1040px;
   height: 100vh;
   height: 100dvh;
   margin: 0 auto;
@@ -77,29 +37,17 @@
   flex-direction: column;
 }
 
-.app__screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  padding-top: var(--space-sm);
-}
-
 .app__content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding-top: var(--space-md);
+  padding: var(--space-sm) 0 var(--space-xl);
 }
 
 @media (min-width: 768px) {
   .app {
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
-    background: rgba(10, 10, 22, 0.35);
-    box-shadow: 0 0 60px rgba(138, 43, 226, 0.15);
-  }
-
-  .app__screen {
-    padding-top: var(--space-md);
+    background: rgba(11, 13, 23, 0.4);
   }
 }

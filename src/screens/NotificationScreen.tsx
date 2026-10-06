@@ -1,34 +1,34 @@
 import { useState } from 'react';
+import type { Notice, Role } from '../data';
 import './NotificationScreen.css';
 
 type SubTab = 'お知らせ' | 'ランキング';
 
-const NOTICES = [
-  'ふぁんさんからタスク「背景のラフを描く」へのアクションがあります',
-  'みるくさんからタスク「線画を清書する」へのアクションがあります',
-  'そらさんから「配色の方向性で迷っている」にコメントがあります',
-  'あめさんからギフトが届きました',
-  'くろさんからタスク「線画を清書する」へのアクションがあります',
-];
+export type RankingRow = {
+  id: string;
+  name: string;
+  count: number;
+  isMe: boolean;
+};
 
-const RANKING = [
-  { name: 'ふぁんさん', count: '42回' },
-  { name: 'みるくさん', count: '31回' },
-  { name: 'そらさん', count: '28回' },
-  { name: 'あめさん', count: '19回' },
-  { name: 'くろさん', count: '12回' },
-];
+type Props = {
+  role: Role;
+  notices: Notice[];
+  ranking: RankingRow[];
+};
 
-export default function NotificationScreen() {
+export default function NotificationScreen({ role, notices, ranking }: Props) {
   const [subTab, setSubTab] = useState<SubTab>('お知らせ');
 
   return (
     <div className="notification-screen">
-      <div className="segmented glass">
+      <div className="segmented glass" role="tablist">
         {(['お知らせ', 'ランキング'] as SubTab[]).map((tab) => (
           <button
             key={tab}
             type="button"
+            role="tab"
+            aria-selected={subTab === tab}
             className={`segmented__item ${subTab === tab ? 'is-active' : ''}`}
             onClick={() => setSubTab(tab)}
           >
@@ -37,19 +37,34 @@ export default function NotificationScreen() {
         ))}
       </div>
 
+      {subTab === 'ランキング' && (
+        <p className="notification-screen__caption">
+          {role === 'artist' ? 'あなたを応援してくれているファンのランキングです。' : 'このアトリエの応援ランキングです。'}
+        </p>
+      )}
+
       <div className="notification-screen__list">
         {subTab === 'お知らせ'
-          ? NOTICES.map((text, i) => (
-              <div key={i} className="row glass">
-                <span className="row__code">SIG-{String(NOTICES.length - i).padStart(3, '0')}</span>
-                <p>{text}</p>
+          ? notices.map((notice) => (
+              <div key={notice.id} className="notice-row glass">
+                <span className="notice-row__dot" aria-hidden="true" />
+                <div className="notice-row__body">
+                  <p>{notice.text}</p>
+                  <span className="notice-row__time">{notice.time}</span>
+                </div>
               </div>
             ))
-          : RANKING.map((entry, i) => (
-              <div key={entry.name} className={`rank-row glass ${i < 3 ? `is-top is-top-${i + 1}` : ''}`}>
-                <span className="rank-row__index">{String(i + 1).padStart(2, '0')}</span>
-                <span>{entry.name}</span>
-                <span className="rank-row__count">{entry.count}</span>
+          : ranking.map((entry, i) => (
+              <div
+                key={entry.id}
+                className={`rank-row glass ${i < 3 ? `is-top-${i + 1}` : ''} ${entry.isMe ? 'is-me' : ''}`}
+              >
+                <span className="rank-row__index">{i + 1}</span>
+                <span className="rank-row__name">
+                  {entry.name}さん
+                  {entry.isMe && <span className="rank-row__me">あなた</span>}
+                </span>
+                <span className="rank-row__count">{entry.count}回</span>
               </div>
             ))}
       </div>
