@@ -138,3 +138,118 @@
     padding: var(--space-lg);
   }
 }
+
+/* ===== メール / Google ログイン ===== */
+.login__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: rgba(8, 10, 20, 0.4);
+}
+
+.login__tab {
+  flex: 1;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.login__tab:hover {
+  color: var(--color-text);
+}
+
+.login__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.login__tab.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login__info {
+  font-size: 13px;
+  color: var(--status-online);
+}
+
+.login__link {
+  align-self: center;
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.login__link:hover {
+  color: var(--color-text-secondary);
+}
+
+.login__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.login__divider::before,
+.login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.login__spinner {
+  width: 28px;
+  height: 28px;
+  margin: var(--space-md) auto;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary-soft);
+  border-top-color: var(--color-primary);
+  animation: login-spin 0.9s linear infinite;
+}
+
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.login__code {
+  display: block;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: rgba(8, 10, 20, 0.5);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.role-card.is-selected {
+  border-color: var(--role-color);
+  background: var(--role-soft);
+}

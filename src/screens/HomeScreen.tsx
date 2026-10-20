@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { ArtistStatus, Role, Tag, TimelineItem } from '../data';
+import JoinAtelierForm from '../components/JoinAtelierForm';
 import { StatusBadge } from '../components/StatusSelect';
 import { SendIcon, PlusIcon, CheckIcon, GiftIcon, HeartIcon } from '../components/icons';
 import './HomeScreen.css';
@@ -77,6 +78,12 @@ export default function HomeScreen({
         <h2 className="section-header__title">タイムライン</h2>
         <span className="section-header__meta">{items.length}件</span>
       </div>
+
+      {items.length === 0 && (
+        <p className="card__empty home-screen__empty">
+          {isArtist ? 'まだ投稿はありません。TODOや悩みを追加してみましょう。' : 'まだ投稿はありません。'}
+        </p>
+      )}
 
       <div className="gallery">
         {sortedItems.map((item) => {
@@ -231,6 +238,7 @@ function ArtistInputs({ mood, onPostMood, onAddItem }: ArtistInputsProps) {
           <input
             className="input"
             placeholder="いま何してる？"
+            maxLength={140}
             value={moodDraft}
             onChange={(e) => setMoodDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && postMood()}
@@ -263,6 +271,7 @@ function ArtistInputs({ mood, onPostMood, onAddItem }: ArtistInputsProps) {
           <input
             className="input"
             placeholder={newTag === 'TODO' ? '新しいタスクを追加' : '悩みを共有する'}
+            maxLength={100}
             value={newText}
             onChange={(e) => setNewText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addItem()}
@@ -315,6 +324,7 @@ function FanInputs({ artistName, mood, onSendCheer }: FanInputsProps) {
           <input
             className="input"
             placeholder="制作を応援するひとことを送る"
+            maxLength={140}
             value={draft}
             onChange={(e) => {
               setDraft(e.target.value);
@@ -326,6 +336,34 @@ function FanInputs({ artistName, mood, onSendCheer }: FanInputsProps) {
             <SendIcon size={17} />
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+type NoAtelierProps = {
+  denied: boolean;
+  onJoin: (key: string) => Promise<void>;
+};
+
+// ファンがまだアトリエに参加していないときのホーム
+export function NoAtelierScreen({ denied, onJoin }: NoAtelierProps) {
+  return (
+    <div className="home-screen">
+      <section className="hero glass">
+        <div className="hero__orb" aria-hidden="true" />
+        <div className="hero__body">
+          <span className="eyebrow">アトリエに参加する</span>
+          <h1 className="hero__title">Secret Atelier</h1>
+          <p className="hero__lead">
+            {denied
+              ? 'このアトリエを見る権限がなくなりました。新しい鍵番号を受け取って参加し直してください。'
+              : 'アーティストから受け取った鍵番号を入力すると、アトリエに入れます。'}
+          </p>
+        </div>
+      </section>
+      <div className="card glass">
+        <JoinAtelierForm onJoin={onJoin} />
       </div>
     </div>
   );

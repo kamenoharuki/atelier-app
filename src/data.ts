@@ -51,57 +51,53 @@ export type Profile = {
   avatar: Avatar;
 };
 
-export const initialProfiles: Record<Role, Profile> = {
-  artist: { name: 'namenamename', avatar: { type: 'preset', preset: 'palette' } },
-  fan: { name: 'ほしの', avatar: { type: 'preset', preset: 'star' } },
+export const DEFAULT_AVATAR: Avatar = { type: 'preset', preset: 'person' };
+
+export const DEFAULT_STATUS: ArtistStatus = 'オフライン';
+
+// Firestore の users/{uid}
+export type UserDoc = Profile & {
+  role: Role;
+  // ファンが参加中のアトリエ（= アーティストのuid）
+  atelierId: string | null;
+  lastSeenAt: Date | null;
 };
 
-export const initialMood = '今日は配色を決める日。夜まで作業します';
+// Firestore の ateliers/{artistUid}
+export type Atelier = {
+  status: ArtistStatus;
+  mood: string;
+};
 
-export const initialItems: TimelineItem[] = [
-  { id: '1', tag: 'TODO', text: '背景のラフを描く', giftCount: 4, done: false },
-  { id: '2', tag: '悩み', text: '配色の方向性で迷っている', giftCount: 7, done: false },
-  { id: '3', tag: 'TODO', text: '線画を清書する', giftCount: 2, done: true },
-  { id: '4', tag: 'TODO', text: '依頼イラストの構図を固める', giftCount: 1, done: false },
-  { id: '5', tag: '悩み', text: '新しいペンタブの設定に慣れない', giftCount: 3, done: false },
-];
+export type Member = Profile & {
+  id: string;
+  giftCount: number;
+};
 
+// ファン → アーティストへの通知
+export type ArtistNotice = {
+  id: string;
+  kind: 'gift' | 'cheer' | 'join';
+  fromUid: string;
+  fromName: string;
+  itemText?: string;
+  message?: string;
+  createdAt: Date;
+};
+
+// アーティスト → ファンへの通知
+export type FanUpdate = {
+  id: string;
+  kind: 'status' | 'mood' | 'item' | 'done';
+  text: string;
+  createdAt: Date;
+};
+
+// 通知画面に表示する1行
 export type Notice = {
   id: string;
   text: string;
-  time: string;
+  createdAt: Date;
 };
 
-export const initialNotices: Notice[] = [
-  { id: 'n1', text: 'ふぁんさんからタスク「背景のラフを描く」へのアクションがあります', time: '5分前' },
-  { id: 'n2', text: 'みるくさんからタスク「線画を清書する」へのアクションがあります', time: '18分前' },
-  { id: 'n3', text: 'そらさんから「配色の方向性で迷っている」にコメントがあります', time: '1時間前' },
-  { id: 'n4', text: 'あめさんからギフトが届きました', time: '3時間前' },
-  { id: 'n5', text: 'くろさんからタスク「線画を清書する」へのアクションがあります', time: '昨日' },
-];
-
-export function buildFanNotices(artistName: string, status: ArtistStatus, mood: string): Notice[] {
-  return [
-    { id: 'f1', text: `${artistName}さんのステータスは「${status}」です`, time: 'たった今' },
-    ...(mood ? [{ id: 'f2', text: `${artistName}さんのひとこと：「${mood}」`, time: '10分前' }] : []),
-    { id: 'f3', text: `${artistName}さんがタスク「線画を清書する」を完了しました`, time: '1時間前' },
-    { id: 'f4', text: '応援ランキングが更新されました', time: '昨日' },
-  ];
-}
-
-export type RankingEntry = {
-  id: string;
-  name: string;
-  count: number;
-};
-
-export const RANKING: RankingEntry[] = [
-  { id: 'r1', name: 'ふぁん', count: 42 },
-  { id: 'r2', name: 'みるく', count: 31 },
-  { id: 'r3', name: 'そら', count: 28 },
-  { id: 'r4', name: 'あめ', count: 19 },
-  { id: 'r5', name: 'くろ', count: 12 },
-];
-
-// ログイン中のファン自身の応援回数の初期値
-export const FAN_BASE_SUPPORT = 8;
+export const KEY_LENGTH = 12;

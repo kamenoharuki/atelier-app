@@ -1,0 +1,176 @@
+rules_version = '2';
+
+// データ構造
+//   users/{uid}                         プロフィール（role / name / avatar / atelierId / lastSeenAt）
+//   atelierKeys/{key}                   12桁の鍵番号 → アーティストuid
+//   ateliers/{artistUid}                アトリエ（status / mood）
+//     items/{itemId}                    タイムライン（TODO / 悩み）
+//     members/{fanUid}                  参加中のファン（応援回数つき）
+//     notices/{id}                      ファン → アーティストへの通知（ギフト・応援・参加）
+//     updates/{id}                      アーティスト → ファンへの通知（ステータス・ひとこと・タスク）
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function memberPath(atelierId, uid) {
+      return /databases/$(database)/documents/ateliers/$(atelierId)/members/$(uid);
+    }
+
+    function isArtistOf(atelierId) {
+      return isSelf(atelierId) && get(userPath(atelierId)).data.role == 'artist';
+    }
+
+    function isMemberOf(atelierId) {
+      return signedIn() && exists(memberPath(atelierId, request.auth.uid));
+    }
+
+    function canView(atelierId) {
+      return isArtistOf(atelierId) || isMemberOf(atelierId);
+    }
+
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    function validName(name) {
+      return name is string && name.size() > 0 && name.size() <= 20;
+    }
+
+    function validAvatar(avatar) {
+      return avatar is map
+        && ((avatar.type == 'preset' && avatar.preset is string)
+          || (avatar.type == 'image' && avatar.src is string && avatar.src.size() < 400000));
+    }
+
+    function shortText(value, max) {
+      return value is string && value.size() > 0 && value.size() <= max;
+    }
+
+    function isNow(value) {
+      return value == request.time;
+    }
+
+    function validStatus(status) {
+      return status in ['オンライン', '制作中', 'アトリエ解放中', '休憩中', 'オフライン'];
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn();
+
+      allow create: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['role', 'name', 'avatar', 'atelierId', 'lastSeenAt', 'createdAt'])
+        && request.resource.data.role in ['artist', 'fan']
+        && validName(request.resource.data.name)
+        && validAvatar(request.resource.data.avatar)
+        && request.resource.data.atelierId == null;
+
+      // ロールは変更不可。参加アトリエは、実際にメンバーになっている場合のみ設定できる
+      allow update: if isSelf(uid)
+        && onlyChanges(['name', 'avatar', 'atelierId', 'lastSeenAt'])
+        && validName(request.resource.data.name)
+        && validAvatar(request.resource.data.avatar)
+        && (request.resource.data.atelierId == null
+          || request.resource.data.atelierId == resource.data.atelierId
+          || existsAfter(memberPath(request.resource.data.atelierId, uid)));
+    }
+
+    match /atelierKeys/{key} {
+      // 鍵番号を知っている人だけが1件ずつ引ける（一覧は自分の鍵のみ）
+      allow get: if signedIn();
+      allow list: if signedIn() && resource.data.artistUid == request.auth.uid;
+      allow create: if signedIn()
+        && key.matches('^[0-9]{12}$')
+        && request.resource.data.keys().hasOnly(['artistUid', 'createdAt'])
+        && request.resource.data.artistUid == request.auth.uid
+        && getAfter(userPath(request.auth.uid)).data.role == 'artist'
+        && isNow(request.resource.data.createdAt);
+      allow delete: if signedIn() && resource.data.artistUid == request.auth.uid;
+    }
+
+    match /ateliers/{atelierId} {
+      allow read: if canView(atelierId);
+      allow create: if isSelf(atelierId)
+        && getAfter(userPath(atelierId)).data.role == 'artist'
+        && request.resource.data.keys().hasOnly(['status', 'mood'])
+        && validStatus(request.resource.data.status)
+        && request.resource.data.mood is string;
+      allow update: if isArtistOf(atelierId)
+        && onlyChanges(['status', 'mood'])
+        && validStatus(request.resource.data.status)
+        && request.resource.data.mood is string
+        && request.resource.data.mood.size() <= 140;
+
+      match /items/{itemId} {
+        allow read: if canView(atelierId);
+        allow create: if isArtistOf(atelierId)
+          && request.resource.data.keys().hasOnly(['tag', 'text', 'giftCount', 'done', 'createdAt'])
+          && request.resource.data.tag in ['TODO', '悩み']
+          && shortText(request.resource.data.text, 100)
+          && request.resource.data.giftCount == 0
+          && request.resource.data.done == false
+          && isNow(request.resource.data.createdAt);
+        allow delete: if isArtistOf(atelierId);
+        // アーティストは完了状態のみ、ファンはギフト数を1ずつ増やすことのみ可能
+        allow update: if (isArtistOf(atelierId)
+            && onlyChanges(['done'])
+            && request.resource.data.done is bool)
+          || (isMemberOf(atelierId)
+            && onlyChanges(['giftCount'])
+            && request.resource.data.giftCount == resource.data.giftCount + 1);
+      }
+
+      match /members/{memberId} {
+        allow read: if canView(atelierId);
+        // 正しい鍵番号を知っているファンだけが参加できる
+        allow create: if isSelf(memberId)
+          && get(userPath(memberId)).data.role == 'fan'
+          && request.resource.data.keys().hasOnly(['key', 'name', 'avatar', 'giftCount', 'joinedAt'])
+          && get(/databases/$(database)/documents/atelierKeys/$(request.resource.data.key)).data.artistUid == atelierId
+          && validName(request.resource.data.name)
+          && validAvatar(request.resource.data.avatar)
+          && request.resource.data.giftCount == 0
+          && isNow(request.resource.data.joinedAt);
+        allow update: if isSelf(memberId)
+          && onlyChanges(['name', 'avatar', 'giftCount'])
+          && validName(request.resource.data.name)
+          && validAvatar(request.resource.data.avatar)
+          && (request.resource.data.giftCount == resource.data.giftCount
+            || request.resource.data.giftCount == resource.data.giftCount + 1);
+        allow delete: if isSelf(memberId) || isArtistOf(atelierId);
+      }
+
+      match /notices/{noticeId} {
+        allow read, delete: if isArtistOf(atelierId);
+        allow create: if signedIn()
+          && existsAfter(memberPath(atelierId, request.auth.uid))
+          && request.resource.data.keys().hasOnly(['kind', 'fromUid', 'fromName', 'itemText', 'message', 'createdAt'])
+          && request.resource.data.kind in ['gift', 'cheer', 'join']
+          && request.resource.data.fromUid == request.auth.uid
+          && request.resource.data.fromName == get(userPath(request.auth.uid)).data.name
+          && (!('itemText' in request.resource.data) || shortText(request.resource.data.itemText, 100))
+          && (!('message' in request.resource.data) || shortText(request.resource.data.message, 140))
+          && isNow(request.resource.data.createdAt);
+      }
+
+      match /updates/{updateId} {
+        allow read: if canView(atelierId);
+        allow delete: if isArtistOf(atelierId);
+        allow create: if isArtistOf(atelierId)
+          && request.resource.data.keys().hasOnly(['kind', 'text', 'createdAt'])
+          && request.resource.data.kind in ['status', 'mood', 'item', 'done']
+          && shortText(request.resource.data.text, 200)
+          && isNow(request.resource.data.createdAt);
+      }
+    }
+  }
+}

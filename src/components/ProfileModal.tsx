@@ -2,16 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { Avatar as AvatarValue, Profile } from '../data';
 import { AVATAR_PRESETS } from '../data';
+import { errorMessage, resizeImage } from '../lib/format';
 import Avatar from './Avatar';
 import { CloseIcon, UploadIcon } from './icons';
 import './ProfileModal.css';
 
 const NAME_MAX = 20;
-const IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 
 type Props = {
   profile: Profile;
-  onSave: (profile: Profile) => void;
+  onSave: (profile: Profile) => Promise<void>;
   onClose: () => void;
 };
 
@@ -19,6 +20,7 @@ export default function ProfileModal({ profile, onSave, onClose }: Props) {
   const [name, setName] = useState(profile.name);
   const [avatar, setAvatar] = useState<AvatarValue>(profile.avatar);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -40,27 +42,33 @@ export default function ProfileModal({ profile, onSave, onClose }: Props) {
       return;
     }
     if (file.size > IMAGE_MAX_BYTES) {
-      setError('画像は2MB以下のものを選択してください');
+      setError('画像は10MB以下のものを選択してください');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAvatar({ type: 'image', src: reader.result as string });
-      setError('');
-    };
-    reader.readAsDataURL(file);
+    resizeImage(file)
+      .then((src) => {
+        setAvatar({ type: 'image', src });
+        setError('');
+      })
+      .catch(() => setError('画像を読み込めませんでした'));
   };
 
   const trimmedName = name.trim();
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!trimmedName) {
       setError('ユーザーネームを入力してください');
       nameRef.current?.focus();
       return;
     }
-    onSave({ name: trimmedName, avatar });
+    setSaving(true);
+    try {
+      await onSave({ name: trimmedName, avatar });
+    } catch (err) {
+      setError(errorMessage(err, '保存できませんでした。もう一度お試しください'));
+      setSaving(false);
+    }
   };
 
   return (
@@ -144,7 +152,7 @@ export default function ProfileModal({ profile, onSave, onClose }: Props) {
               )}
             </button>
           </div>
-          <span className="field__hint">画像はPNG / JPEGなど2MBまで。アップロード済みの画像を押すと選び直せます。</span>
+          <span className="field__hint">画像はPNG / JPEGなど10MBまで（自動で縮小されます）。アップロード済みの画像を押すと選び直せます。</span>
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleFile} />
         </div>
 
@@ -158,8 +166,8 @@ export default function ProfileModal({ profile, onSave, onClose }: Props) {
           <button type="button" className="btn btn--ghost" onClick={onClose}>
             キャンセル
           </button>
-          <button type="submit" className="btn btn--primary">
-            保存する
+          <button type="submit" className="btn btn--primary" disabled={saving}>
+            {saving ? '保存中…' : '保存する'}
           </button>
         </div>
       </form>

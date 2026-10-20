@@ -47,3 +47,28 @@
   font-weight: 600;
   letter-spacing: 0.02em;
 }
+
+.tab-bar__icon {
+  position: relative;
+  display: inline-flex;
+}
+
+.tab-bar__badge {
+  position: absolute;
+  top: -5px;
+  left: 14px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--color-background);
+  background: var(--color-accent);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-on-primary);
+}

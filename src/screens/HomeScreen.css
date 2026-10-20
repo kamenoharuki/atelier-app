@@ -532,3 +532,7 @@
     padding: var(--space-md);
   }
 }
+
+.home-screen__empty {
+  margin-top: -8px;
+}

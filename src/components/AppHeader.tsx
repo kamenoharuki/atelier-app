@@ -8,8 +8,8 @@ import './AppHeader.css';
 type Props = {
   role: Role;
   profile: Profile;
-  artistName: string;
-  status: ArtistStatus;
+  artistName?: string;
+  status?: ArtistStatus;
   onChangeStatus: (status: ArtistStatus) => void;
   onOpenProfile: () => void;
   onLogout: () => void;
@@ -32,11 +32,11 @@ export default function AppHeader({ role, profile, artistName, status, onChangeS
       </button>
 
       <div className="app-header__actions">
-        {role === 'artist' ? (
+        {role === 'artist' && status ? (
           <StatusSelect value={status} onChange={onChangeStatus} />
-        ) : (
+        ) : status && artistName ? (
           <StatusBadge status={status} label={`${artistName}さん`} />
-        )}
+        ) : null}
         <button type="button" className="icon-btn" onClick={onLogout} aria-label="ログアウト" title="ログアウト">
           <LogoutIcon size={18} />
         </button>

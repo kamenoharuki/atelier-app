@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Notice, Role } from '../data';
+import { formatRelative } from '../lib/format';
 import './NotificationScreen.css';
 
 type SubTab = 'お知らせ' | 'ランキング';
@@ -44,13 +45,18 @@ export default function NotificationScreen({ role, notices, ranking }: Props) {
       )}
 
       <div className="notification-screen__list">
+        {(subTab === 'お知らせ' ? notices : ranking).length === 0 && (
+          <p className="notification-screen__caption">
+            {subTab === 'お知らせ' ? 'まだお知らせはありません。' : 'まだ応援してくれたファンはいません。'}
+          </p>
+        )}
         {subTab === 'お知らせ'
           ? notices.map((notice) => (
               <div key={notice.id} className="notice-row glass">
                 <span className="notice-row__dot" aria-hidden="true" />
                 <div className="notice-row__body">
                   <p>{notice.text}</p>
-                  <span className="notice-row__time">{notice.time}</span>
+                  <span className="notice-row__time">{formatRelative(notice.createdAt)}</span>
                 </div>
               </div>
             ))

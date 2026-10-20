@@ -70,6 +70,67 @@
   height: 44px;
 }
 
+
+.settings-card__description--flat {
+  margin-top: 0;
+}
+
+.settings-row__label {
+  color: var(--color-text-muted);
+}
+
+.settings-row__value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-form__success {
+  font-size: 13px;
+  color: var(--status-online);
+}
+
+.key-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 10px 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: rgba(8, 10, 20, 0.4);
+}
+
+.key-display__value {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+}
+
+.key-display .btn,
+.key-input .btn {
+  height: 34px;
+  padding: 0 12px;
+}
+
+.key-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.key-input .input {
+  flex: 1;
+  min-width: 0;
+  letter-spacing: 0.08em;
+}
 @media (max-width: 480px) {
   .settings-screen {
     padding: var(--space-md);
