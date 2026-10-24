@@ -1,0 +1,42 @@
+.tag-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: rgba(4, 16, 50, 0.45);
+}
+
+.tag-switch__option {
+  height: 26px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.tag-switch__option:hover {
+  color: var(--color-text);
+}
+
+.tag-switch__option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.tag-switch__option.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.tag-switch__option.is-active.is-worry {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}

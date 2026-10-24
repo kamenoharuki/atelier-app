@@ -1,0 +1,100 @@
+.task-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s ease;
+}
+
+.task-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.task-card.is-done {
+  opacity: 0.6;
+}
+
+.task-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.task-card__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.task-card.is-done .task-card__text {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.task-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 6px;
+  border: 1.5px solid rgba(141, 180, 255, 0.6);
+  background: transparent;
+  color: var(--color-on-primary);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.check-box:hover {
+  border-color: var(--color-primary);
+}
+
+.check-box:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.check-box.is-done {
+  background: var(--color-primary-fill);
+  border-color: var(--color-primary-fill);
+}
+
+.check-box.is-readonly {
+  cursor: default;
+}
+
+.worry-mark {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent) 0 4px, var(--color-accent-soft) 5px);
+}
+
+.gift-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}

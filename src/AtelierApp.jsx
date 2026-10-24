@@ -1,0 +1,188 @@
+// ログイン後のメイン画面。アトリエのデータを購読し、タブの切り替えと各操作をまとめる
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { signOut, updatePassword } from 'firebase/auth';
+import AppHeader from './components/layout/AppHeader';
+import TabBar from './components/layout/TabBar';
+import ProfileModal from './components/common/ProfileModal';
+import Toaster from './components/common/Toaster';
+import HomeScreen from './screens/HomeScreen';
+import NoAtelierScreen from './screens/NoAtelierScreen';
+import NotificationScreen from './screens/NotificationScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import { DEFAULT_STATUS } from './constants';
+import { useAtelier } from './hooks/useAtelier';
+import { useToasts } from './hooks/useToasts';
+import * as api from './firebase/database';
+import { auth } from './firebase/config';
+import { errorMessage } from './utils/errors';
+
+// アーティストに届く通知の文面
+const artistNoticeText = (notice) => {
+  switch (notice.kind) {
+    case 'gift':
+      return `${notice.fromName}さんから「${notice.itemText}」にギフトが届きました`;
+    case 'cheer':
+      return `${notice.fromName}さんから応援メッセージ：「${notice.message}」`;
+    case 'post':
+      return `${notice.fromName}さんがタイムラインに投稿しました：「${notice.message}」`;
+    case 'join':
+      return `${notice.fromName}さんがアトリエに参加しました`;
+  }
+};
+
+export default function AtelierApp({ authUser, user }) {
+  const uid = authUser.uid;
+  const role = user.role;
+  const atelierId = role === 'artist' ? uid : user.atelierId;
+
+  const { atelier, artist, items, members, posts, notices, updates, loading, feedLoading, denied } = useAtelier(
+    atelierId,
+    role,
+  );
+  const [tab, setTab] = useState('home');
+  const [isProfileOpen, setProfileOpen] = useState(false);
+  const { toasts, push, dismiss } = useToasts();
+
+  const status = atelier?.status ?? DEFAULT_STATUS;
+  const artistName = artist?.name ?? '';
+  const hasAtelier = Boolean(atelierId) && !denied;
+
+  // アーティストにはファンからの反応、ファンにはアーティストの更新を通知する
+  const feed = useMemo(
+    () =>
+      role === 'artist'
+        ? notices.map((n) => ({ id: n.id, text: artistNoticeText(n), createdAt: n.createdAt }))
+        : updates.map((u) => ({ id: u.id, text: `${artistName}さんが${u.text}`, createdAt: u.createdAt })),
+    [role, notices, updates, artistName],
+  );
+
+  // 画面を開いた後に届いた通知をトーストで知らせる
+  const knownIds = useRef(null);
+  useEffect(() => {
+    if (!atelierId || feedLoading) return;
+    if (knownIds.current?.atelierId !== atelierId) {
+      knownIds.current = { atelierId, ids: new Set(feed.map((n) => n.id)) };
+      return;
+    }
+    const known = knownIds.current.ids;
+    const fresh = feed.filter((n) => !known.has(n.id));
+    fresh.forEach((n) => known.add(n.id));
+    fresh.reverse().forEach((n) => push(n.text));
+  }, [atelierId, feed, feedLoading, push]);
+
+  const lastSeen = user.lastSeenAt?.getTime() ?? 0;
+  const unread = feed.filter((n) => n.createdAt.getTime() > lastSeen).length;
+
+  useEffect(() => {
+    if (tab === 'notification' && unread > 0) api.markNoticesSeen(uid).catch(() => undefined);
+  }, [tab, unread, uid]);
+
+  const run = useCallback(
+    (action) => {
+      action.catch((e) => push(errorMessage(e), 'error'));
+    },
+    [push],
+  );
+
+  const closeProfile = useCallback(() => setProfileOpen(false), []);
+  const loadKey = useCallback(() => api.fetchMyKey(uid), [uid]);
+
+  const logout = () => {
+    setProfileOpen(false);
+    signOut(auth);
+  };
+
+  const saveProfile = async (next) => {
+    await api.saveProfile(uid, user, next);
+    setProfileOpen(false);
+  };
+
+  const join = async (key) => {
+    await api.joinAtelier(uid, user, key);
+    setTab('home');
+  };
+
+  const findItem = (id) => items.find((item) => item.id === id);
+
+  // 投稿者のアバター（メンバー一覧に載らない分は既定のアバターになる）
+  const avatars = useMemo(() => {
+    const map = {};
+    members.forEach((m) => (map[m.id] = m.avatar));
+    if (atelierId && artist) map[atelierId] = artist.avatar;
+    map[uid] = user.avatar;
+    return map;
+  }, [members, atelierId, artist, uid, user.avatar]);
+
+  const ranking = members.map((m) => ({ id: m.id, name: m.name, count: m.giftCount, isMe: m.id === uid }));
+
+  const renderHome = () => {
+    if (!atelierId || !hasAtelier) return <NoAtelierScreen denied={denied} onJoin={join} />;
+    if (loading) return <div className="login__spinner" role="status" aria-label="読み込み中" />;
+    return (
+      <HomeScreen
+        role={role}
+        artistName={artistName}
+        status={status}
+        me={user}
+        posts={posts}
+        avatars={avatars}
+        items={items}
+        onPost={(text) => run(api.createPost(atelierId, uid, user, text))}
+        onAddItem={(tag, text) => run(api.addItem(atelierId, tag, text))}
+        onToggleDone={(id) => {
+          const item = findItem(id);
+          if (item) run(api.toggleDone(atelierId, item));
+        }}
+        onSendGift={(id) => {
+          const item = findItem(id);
+          if (item) run(api.sendGift(atelierId, uid, user.name, item));
+        }}
+      />
+    );
+  };
+
+  return (
+    <div className="page">
+      <div className="app">
+        <AppHeader
+          role={role}
+          profile={user}
+          artistName={hasAtelier ? artistName : undefined}
+          status={hasAtelier ? status : undefined}
+          onChangeStatus={(next) => atelierId && run(api.setStatus(atelierId, next))}
+          onOpenProfile={() => setProfileOpen(true)}
+          onLogout={logout}
+        />
+
+        <main className="app__content">
+          {tab === 'home' && renderHome()}
+          {tab === 'notification' && (
+            <NotificationScreen role={role} notices={hasAtelier ? feed : []} ranking={hasAtelier ? ranking : []} />
+          )}
+          {tab === 'settings' && (
+            <SettingsScreen
+              role={role}
+              profile={user}
+              email={authUser.email}
+              canChangePassword={authUser.providerData.some((p) => p.providerId === 'password')}
+              artistName={hasAtelier ? artistName : undefined}
+              status={hasAtelier ? status : undefined}
+              onEditProfile={() => setProfileOpen(true)}
+              onLogout={logout}
+              onChangePassword={(password) => updatePassword(authUser, password)}
+              onJoin={join}
+              onLeave={() => (user.atelierId ? api.leaveAtelier(uid, user.atelierId) : Promise.resolve())}
+              onLoadKey={loadKey}
+              onChangeKey={(oldKey, newKey) => api.changeKey(uid, oldKey, newKey)}
+            />
+          )}
+        </main>
+
+        <TabBar active={tab} onChange={setTab} badges={{ notification: hasAtelier ? unread : 0 }} />
+      </div>
+
+      {isProfileOpen && <ProfileModal profile={user} onSave={saveProfile} onClose={closeProfile} />}
+      <Toaster toasts={toasts} onDismiss={dismiss} />
+    </div>
+  );
+}

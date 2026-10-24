@@ -1,0 +1,106 @@
+:root {
+  /* ベース（深いサファイア） */
+  --color-background: #0a1f55;
+  --color-background-raised: #0e2766;
+  --color-surface: rgba(255, 255, 255, 0.055);
+  --color-surface-strong: rgba(255, 255, 255, 0.09);
+  --color-surface-solid: #11307a;
+  --color-border: rgba(173, 198, 255, 0.14);
+  --color-border-strong: rgba(141, 180, 255, 0.5);
+  --color-text: #f2f5fc;
+  --color-text-secondary: #c3cfe9;
+  --color-text-muted: #93a5cf;
+
+  /* アクセント（サファイアブルー）
+     primary: 文字・枠・アイコン用 / primary-fill: ボタンなど面で塗る用（白文字）
+     accent: 「悩み」・ファン・ギフトなど、primary と区別したい箇所用の淡いサファイア */
+  --color-primary: #8db4ff;
+  --color-primary-soft: rgba(141, 180, 255, 0.14);
+  --color-primary-fill: #2563d9;
+  --color-primary-fill-hover: #3171e6;
+  --color-accent: #c2d6ff;
+  --color-accent-soft: rgba(194, 214, 255, 0.12);
+  --color-danger: #f0899e;
+  --color-danger-soft: rgba(240, 137, 158, 0.1);
+  --color-on-primary: #ffffff;
+
+  /* ステータス */
+  --status-online: #5fd4a4;
+  --status-working: #8db4ff;
+  --status-open: #6fd3ec;
+  --status-break: #e6b866;
+  --status-offline: #7c8399;
+
+  --glass-blur: blur(14px);
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 3px rgba(141, 180, 255, 0.45);
+
+  --font-body: 'Inter', 'Noto Sans JP', system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input {
+  font-family: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+::selection {
+  background: rgba(141, 180, 255, 0.35);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

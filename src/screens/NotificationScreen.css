@@ -21,7 +21,9 @@
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .segmented__item:hover {
@@ -134,7 +136,7 @@
 }
 
 .rank-row.is-me {
-  border-color: rgba(91, 143, 232, 0.45);
+  border-color: rgba(141, 180, 255, 0.45);
   background: linear-gradient(90deg, var(--color-primary-soft), transparent 70%), var(--color-surface);
 }
 
