@@ -134,8 +134,8 @@
 }
 
 .rank-row.is-me {
-  border-color: rgba(167, 139, 250, 0.45);
-  background: linear-gradient(90deg, var(--color-accent-soft), transparent 70%), var(--color-surface);
+  border-color: rgba(91, 143, 232, 0.45);
+  background: linear-gradient(90deg, var(--color-primary-soft), transparent 70%), var(--color-surface);
 }
 
 .rank-row__name {
@@ -149,10 +149,10 @@
 .rank-row__me {
   padding: 1px 8px;
   border-radius: var(--radius-pill);
-  background: var(--color-accent-soft);
+  background: var(--color-primary-soft);
   font-size: 11px;
   font-weight: 600;
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .rank-row__count {

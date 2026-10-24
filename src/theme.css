@@ -1,38 +1,40 @@
 :root {
-  /* ベース（落ち着いたダークサイバー） */
-  --color-background: #0b0d17;
-  --color-background-raised: #10132a;
-  --color-surface: rgba(22, 26, 50, 0.55);
-  --color-surface-strong: rgba(30, 35, 66, 0.7);
-  --color-surface-solid: #151935;
+  /* ベース（落ち着いたネイビー） */
+  --color-background: #0a0f1c;
+  --color-background-raised: #0f1626;
+  --color-surface: rgba(20, 29, 50, 0.6);
+  --color-surface-strong: rgba(27, 38, 64, 0.75);
+  --color-surface-solid: #131c31;
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(122, 162, 255, 0.45);
-  --color-text: #e6e9f5;
-  --color-text-secondary: #b4bad3;
-  --color-text-muted: #8389a6;
+  --color-border-strong: rgba(91, 143, 232, 0.45);
+  --color-text: #e7ecf5;
+  --color-text-secondary: #b3bdd1;
+  --color-text-muted: #8590a8;
 
-  /* アクセント（サイバーブルー / パープル） */
-  --color-primary: #7aa2ff;
-  --color-primary-hover: #93b4ff;
-  --color-primary-soft: rgba(122, 162, 255, 0.14);
-  --color-accent: #a78bfa;
-  --color-accent-soft: rgba(167, 139, 250, 0.14);
+  /* アクセント（サファイアブルー）
+     primary: 文字・枠・アイコン用 / primary-fill: ボタンなど面で塗る用（白文字）
+     accent: 「悩み」・ファン・ギフトなど、primary と区別したい箇所用の淡いサファイア */
+  --color-primary: #5b8fe8;
+  --color-primary-soft: rgba(91, 143, 232, 0.14);
+  --color-primary-fill: #1f5fc8;
+  --color-primary-fill-hover: #2a6bd6;
+  --color-accent: #9dbcf0;
+  --color-accent-soft: rgba(157, 188, 240, 0.12);
   --color-danger: #f0899e;
   --color-danger-soft: rgba(240, 137, 158, 0.1);
-  --color-on-primary: #0b0d17;
-  --gradient-accent: linear-gradient(135deg, #7aa2ff, #a78bfa);
+  --color-on-primary: #ffffff;
 
   /* ステータス */
   --status-online: #5fd4a4;
-  --status-working: #7aa2ff;
-  --status-open: #a78bfa;
+  --status-working: #5b8fe8;
+  --status-open: #5ec3dd;
   --status-break: #e6b866;
-  --status-offline: #7c8199;
+  --status-offline: #7c8399;
 
-  --glass-blur: blur(18px) saturate(120%);
+  --glass-blur: blur(14px);
   --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);
   --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.45);
-  --focus-ring: 0 0 0 3px rgba(122, 162, 255, 0.3);
+  --focus-ring: 0 0 0 3px rgba(91, 143, 232, 0.35);
 
   --font-body: 'Inter', 'Noto Sans JP', system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', sans-serif;
 
@@ -84,7 +86,7 @@ p {
 }
 
 ::selection {
-  background: rgba(122, 162, 255, 0.35);
+  background: rgba(91, 143, 232, 0.35);
   color: #fff;
 }
 
@@ -134,12 +136,12 @@ p {
 }
 
 .btn--primary {
-  background: var(--color-primary);
+  background: var(--color-primary-fill);
   color: var(--color-on-primary);
 }
 
 .btn--primary:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-primary-fill-hover);
 }
 
 .btn--secondary {
@@ -204,13 +206,13 @@ p {
 }
 
 .icon-btn--primary {
-  background: var(--color-primary);
+  background: var(--color-primary-fill);
   border-color: transparent;
   color: var(--color-on-primary);
 }
 
 .icon-btn--primary:hover {
-  background: var(--color-primary-hover);
+  background: var(--color-primary-fill-hover);
   color: var(--color-on-primary);
 }
 

@@ -4,25 +4,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   background:
-    radial-gradient(ellipse 70% 45% at 10% 0%, rgba(91, 110, 230, 0.16), transparent 65%),
-    radial-gradient(ellipse 55% 40% at 100% 20%, rgba(140, 100, 230, 0.12), transparent 65%),
-    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(80, 120, 220, 0.1), transparent 65%),
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(31, 95, 200, 0.12), transparent 70%),
     var(--color-background);
   overflow: hidden;
-}
-
-/* うっすらとしたグリッド（静止） */
-.page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 20%, transparent 75%);
 }
 
 .app {
@@ -48,6 +32,6 @@
   .app {
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
-    background: rgba(11, 13, 23, 0.4);
+    background: rgba(10, 15, 28, 0.4);
   }
 }

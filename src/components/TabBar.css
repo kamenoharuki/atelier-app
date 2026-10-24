@@ -5,7 +5,7 @@
   height: 68px;
   padding: 6px var(--space-md);
   border-top: 1px solid var(--color-border);
-  background: rgba(11, 13, 23, 0.72);
+  background: rgba(10, 15, 28, 0.78);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   flex-shrink: 0;
@@ -65,7 +65,7 @@
   justify-content: center;
   border-radius: var(--radius-pill);
   border: 2px solid var(--color-background);
-  background: var(--color-accent);
+  background: var(--color-primary-fill);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;

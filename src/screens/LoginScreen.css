@@ -33,8 +33,7 @@
   width: 22px;
   height: 22px;
   border-radius: 7px;
-  background: var(--gradient-accent);
-  box-shadow: 0 4px 14px rgba(122, 162, 255, 0.25);
+  background: var(--color-primary-fill);
 }
 
 .login__heading {

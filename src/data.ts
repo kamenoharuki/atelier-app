@@ -38,12 +38,12 @@ export type AvatarPresetId = 'person' | 'palette' | 'brush' | 'star' | 'moon' | 
 export type Avatar = { type: 'preset'; preset: AvatarPresetId } | { type: 'image'; src: string };
 
 export const AVATAR_PRESETS: { id: AvatarPresetId; label: string; gradient: string }[] = [
-  { id: 'person', label: 'シルエット', gradient: 'linear-gradient(135deg, #3b4a7a, #252c4d)' },
-  { id: 'palette', label: 'パレット', gradient: 'linear-gradient(135deg, #5b7be0, #7b5fd6)' },
-  { id: 'brush', label: 'ブラシ', gradient: 'linear-gradient(135deg, #4c8fd6, #3c5fb8)' },
-  { id: 'star', label: 'スター', gradient: 'linear-gradient(135deg, #8a6fe0, #5a4bb5)' },
-  { id: 'moon', label: 'ムーン', gradient: 'linear-gradient(135deg, #36507f, #6a5aa8)' },
-  { id: 'heart', label: 'ハート', gradient: 'linear-gradient(135deg, #b0679b, #6e5bc4)' },
+  { id: 'person', label: 'シルエット', gradient: 'linear-gradient(135deg, #35496f, #1f2b45)' },
+  { id: 'palette', label: 'パレット', gradient: 'linear-gradient(135deg, #2f6fd8, #1a4aa3)' },
+  { id: 'brush', label: 'ブラシ', gradient: 'linear-gradient(135deg, #3a8fd0, #1f5fa8)' },
+  { id: 'star', label: 'スター', gradient: 'linear-gradient(135deg, #5b8fe8, #2c56b8)' },
+  { id: 'moon', label: 'ムーン', gradient: 'linear-gradient(135deg, #2b4f8f, #172d5c)' },
+  { id: 'heart', label: 'ハート', gradient: 'linear-gradient(135deg, #4a7fd4, #284a96)' },
 ];
 
 export type Profile = {
