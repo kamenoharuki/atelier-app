@@ -35,10 +35,8 @@ export default function AtelierApp({ authUser, user }) {
   const role = user.role;
   const atelierId = role === 'artist' ? uid : user.atelierId;
 
-  const { atelier, artist, items, members, posts, notices, updates, loading, feedLoading, denied } = useAtelier(
-    atelierId,
-    role,
-  );
+  const { atelier, artist, items, members, posts, notices, updates, loading, feedLoading, denied, missing } =
+    useAtelier(atelierId, role);
   const [tab, setTab] = useState('home');
   const [isProfileOpen, setProfileOpen] = useState(false);
   const { toasts, push, dismiss } = useToasts();
@@ -46,6 +44,11 @@ export default function AtelierApp({ authUser, user }) {
   const isOpen = Boolean(atelier?.isOpen);
   // アーティスト本人は、見ている時点でオンライン
   usePresence(role === 'artist' ? uid : null);
+
+  // アーティストのアトリエが消えていたら作り直す（無いままだと開放の切り替えなどが権限エラーになる）
+  useEffect(() => {
+    if (role === 'artist' && missing) api.restoreAtelier(uid).catch(() => undefined);
+  }, [role, missing, uid]);
   const artistOnline = useIsOnline(atelier);
   const isOnline = role === 'artist' || artistOnline;
   const artistName = artist?.name ?? '';

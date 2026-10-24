@@ -97,5 +97,7 @@ export function useAtelier(atelierId, role) {
     feedLoading: role === 'artist' ? notices.loading : updates.loading,
     // 閲覧権限がない（アトリエから外された等）
     denied: atelier.error,
+    // 読み込めたが、アトリエのドキュメント自体が無い
+    missing: Boolean(atelierId) && !atelier.loading && !atelier.error && !atelier.data,
   };
 }

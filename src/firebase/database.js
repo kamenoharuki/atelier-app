@@ -7,6 +7,7 @@ import {
   getDocs,
   increment,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -46,6 +47,17 @@ export async function createUserProfile(uid, role, profile) {
     batch.set(keyRef(generateKey()), { artistUid: uid, createdAt: serverTimestamp() });
   }
   await batch.commit();
+}
+
+// アーティストのアトリエ（と鍵番号）が無くなっていたら作り直す
+// 既にある場合に上書きしないよう、サーバー上の有無をトランザクションで確かめてから作る
+export async function restoreAtelier(uid) {
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(atelierRef(uid));
+    if (snap.exists()) return;
+    tx.set(atelierRef(uid), { mood: '', isOpen: false, online: true, lastActiveAt: serverTimestamp() });
+  });
+  if (!(await fetchMyKey(uid))) await changeKey(uid, null, generateKey());
 }
 
 export async function saveProfile(uid, user, profile) {
