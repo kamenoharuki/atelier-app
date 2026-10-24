@@ -9,8 +9,8 @@ import HomeScreen from './screens/HomeScreen';
 import NoAtelierScreen from './screens/NoAtelierScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import SettingsScreen from './screens/SettingsScreen';
-import { DEFAULT_STATUS } from './constants';
 import { useAtelier } from './hooks/useAtelier';
+import { useIsOnline, usePresence } from './hooks/usePresence';
 import { useToasts } from './hooks/useToasts';
 import * as api from './firebase/database';
 import { auth } from './firebase/config';
@@ -43,7 +43,11 @@ export default function AtelierApp({ authUser, user }) {
   const [isProfileOpen, setProfileOpen] = useState(false);
   const { toasts, push, dismiss } = useToasts();
 
-  const status = atelier?.status ?? DEFAULT_STATUS;
+  const isOpen = Boolean(atelier?.isOpen);
+  // アーティスト本人は、見ている時点でオンライン
+  usePresence(role === 'artist' ? uid : null);
+  const artistOnline = useIsOnline(atelier);
+  const isOnline = role === 'artist' || artistOnline;
   const artistName = artist?.name ?? '';
   const hasAtelier = Boolean(atelierId) && !denied;
 
@@ -87,8 +91,10 @@ export default function AtelierApp({ authUser, user }) {
   const closeProfile = useCallback(() => setProfileOpen(false), []);
   const loadKey = useCallback(() => api.fetchMyKey(uid), [uid]);
 
-  const logout = () => {
+  const logout = async () => {
     setProfileOpen(false);
+    // ログアウト後は書き込めないので、先にオフラインを記録する
+    if (role === 'artist') await api.updatePresence(uid, false).catch(() => undefined);
     signOut(auth);
   };
 
@@ -122,7 +128,8 @@ export default function AtelierApp({ authUser, user }) {
       <HomeScreen
         role={role}
         artistName={artistName}
-        status={status}
+        isOpen={isOpen}
+        isOnline={isOnline}
         me={user}
         posts={posts}
         avatars={avatars}
@@ -148,8 +155,9 @@ export default function AtelierApp({ authUser, user }) {
           role={role}
           profile={user}
           artistName={hasAtelier ? artistName : undefined}
-          status={hasAtelier ? status : undefined}
-          onChangeStatus={(next) => atelierId && run(api.setStatus(atelierId, next))}
+          hasAtelier={hasAtelier}
+          isOpen={isOpen}
+          isOnline={isOnline}
           onOpenProfile={() => setProfileOpen(true)}
           onLogout={logout}
         />
@@ -166,7 +174,10 @@ export default function AtelierApp({ authUser, user }) {
               email={authUser.email}
               canChangePassword={authUser.providerData.some((p) => p.providerId === 'password')}
               artistName={hasAtelier ? artistName : undefined}
-              status={hasAtelier ? status : undefined}
+              hasAtelier={hasAtelier}
+              isOpen={isOpen}
+              isOnline={isOnline}
+              onChangeOpen={(next) => api.setAtelierOpen(uid, next)}
               onEditProfile={() => setProfileOpen(true)}
               onLogout={logout}
               onChangePassword={(password) => updatePassword(authUser, password)}

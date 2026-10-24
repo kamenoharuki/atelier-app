@@ -4,13 +4,14 @@
 import AddItemCard from '../components/home/AddItemCard';
 import PostFeed from '../components/home/PostFeed';
 import TaskCard from '../components/home/TaskCard';
-import { StatusBadge } from '../components/layout/StatusSelect';
+import { OpenBadge, PresenceBadge } from '../components/common/StatusBadge';
 import './HomeScreen.css';
 
 export default function HomeScreen({
   role,
   artistName,
-  status,
+  isOpen,
+  isOnline,
   me,
   posts,
   avatars,
@@ -35,15 +36,16 @@ export default function HomeScreen({
             <span className="eyebrow">{artistName}さんのアトリエ</span>
             <h1 className="hero__title">Secret Atelier</h1>
             <p className="hero__lead">
-              {status === 'アトリエ解放中'
-                ? 'ただいまアトリエを解放中です。ギフトや応援を届けましょう。'
+              {isOpen
+                ? 'ただいまアトリエを開放中です。ギフトや応援を届けましょう。'
                 : '招待されたメンバーだけが入れる、閉じた制作空間です。'}
             </p>
             <dl className="hero__stats">
               <div className="hero__stat">
                 <dt>ステータス</dt>
                 <dd>
-                  <StatusBadge status={status} />
+                  <OpenBadge isOpen={isOpen} />
+                  <PresenceBadge online={isOnline} />
                 </dd>
               </div>
               <div className="hero__stat">

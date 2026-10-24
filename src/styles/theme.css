@@ -26,10 +26,9 @@
 
   /* ステータス */
   --status-online: #5fd4a4;
-  --status-working: #8db4ff;
-  --status-open: #6fd3ec;
-  --status-break: #e6b866;
   --status-offline: #7c8399;
+  --status-open: #6fd3ec;
+  --status-closed: #e6b866;
 
   --glass-blur: blur(14px);
   --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.28);

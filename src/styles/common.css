@@ -198,8 +198,8 @@
   height: 8px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: var(--status-color, var(--status-working));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-color, var(--status-working)) 22%, transparent);
+  background: var(--status-color, var(--status-offline));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-color, var(--status-offline)) 22%, transparent);
 }
 
 /* ===== 共通: カード ===== */

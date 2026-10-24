@@ -1,10 +1,11 @@
-// 設定画面（プロフィール・参加中のアトリエ／鍵番号・アカウント・ログアウト）
+// 設定画面（プロフィール・参加中のアトリエ／アトリエの開放と鍵番号・アカウント・ログアウト）
 import { ROLE_LABEL } from '../constants';
 import Avatar from '../components/common/Avatar';
 import JoinAtelierForm from '../components/common/JoinAtelierForm';
-import { StatusBadge } from '../components/layout/StatusSelect';
+import { OpenBadge, PresenceBadge } from '../components/common/StatusBadge';
 import { LogoutIcon, PencilIcon } from '../components/common/icons';
 import KeyCard from '../components/settings/KeyCard';
+import OpenCard from '../components/settings/OpenCard';
 import LeaveButton from '../components/settings/LeaveButton';
 import PasswordForm from '../components/settings/PasswordForm';
 import './SettingsScreen.css';
@@ -15,7 +16,10 @@ export default function SettingsScreen({
   email,
   canChangePassword,
   artistName,
-  status,
+  hasAtelier,
+  isOpen,
+  isOnline,
+  onChangeOpen,
   onEditProfile,
   onLogout,
   onChangePassword,
@@ -44,11 +48,14 @@ export default function SettingsScreen({
       {role === 'fan' && (
         <section className="settings-card glass">
           <h2 className="settings-card__title">参加中のアトリエ</h2>
-          {artistName && status ? (
+          {artistName && hasAtelier ? (
             <>
               <div className="settings-row">
                 <span>{artistName}さんのアトリエ</span>
-                <StatusBadge status={status} />
+                <span className="settings-row__badges">
+                  <OpenBadge isOpen={isOpen} />
+                  <PresenceBadge online={isOnline} />
+                </span>
               </div>
               <LeaveButton onLeave={onLeave} />
               <p className="settings-card__description settings-card__description--flat">
@@ -64,6 +71,7 @@ export default function SettingsScreen({
         </section>
       )}
 
+      {role === 'artist' && <OpenCard isOpen={isOpen} onChangeOpen={onChangeOpen} />}
       {role === 'artist' && <KeyCard onLoadKey={onLoadKey} onChangeKey={onChangeKey} />}
 
       <section className="settings-card glass">

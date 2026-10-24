@@ -65,6 +65,9 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-header__name {
@@ -87,5 +90,23 @@
   .app-header {
     padding: 12px var(--space-md);
     gap: var(--space-sm);
+  }
+
+  .app-header__actions {
+    gap: 6px;
+  }
+
+  .app-header__actions .status-badge {
+    height: 28px;
+    padding: 0 8px;
+    gap: 6px;
+    font-size: 12px;
+  }
+}
+
+/* とても狭い画面では、アーティストの状態表示を優先して自分の名前を隠す（アバターだけ残す） */
+@media (max-width: 380px) {
+  .app-header__meta {
+    display: none;
   }
 }

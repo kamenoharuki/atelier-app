@@ -65,6 +65,12 @@
   font-size: 14px;
 }
 
+.settings-row__badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .settings-screen__logout {
   margin-top: var(--space-sm);
   height: 44px;

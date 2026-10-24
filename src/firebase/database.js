@@ -12,7 +12,7 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { DEFAULT_STATUS, KEY_LENGTH } from '../constants';
+import { KEY_LENGTH } from '../constants';
 import { db } from './config';
 
 const userRef = (uid) => doc(db, 'users', uid);
@@ -42,7 +42,7 @@ export async function createUserProfile(uid, role, profile) {
     createdAt: serverTimestamp(),
   });
   if (role === 'artist') {
-    batch.set(atelierRef(uid), { status: DEFAULT_STATUS, mood: '' });
+    batch.set(atelierRef(uid), { mood: '', isOpen: false, online: true, lastActiveAt: serverTimestamp() });
     batch.set(keyRef(generateKey()), { artistUid: uid, createdAt: serverTimestamp() });
   }
   await batch.commit();
@@ -64,15 +64,21 @@ export function markNoticesSeen(uid) {
 
 /* ===== アーティストの操作 ===== */
 
-export async function setStatus(atelierId, status) {
+// アトリエの開放 / 閉鎖を切り替え、ファンに通知する
+export async function setAtelierOpen(atelierId, isOpen) {
   const batch = writeBatch(db);
-  batch.update(atelierRef(atelierId), { status });
+  batch.update(atelierRef(atelierId), { isOpen });
   batch.set(newDocIn(atelierId, 'updates'), {
     kind: 'status',
-    text: `ステータスを「${status}」に変更しました`,
+    text: isOpen ? 'アトリエを開放しました' : 'アトリエを閉鎖しました',
     createdAt: serverTimestamp(),
   });
   await batch.commit();
+}
+
+// オンライン表示の自動更新（hooks/usePresence.js から呼ぶ）
+export function updatePresence(atelierId, online) {
+  return updateDoc(atelierRef(atelierId), { online, lastActiveAt: serverTimestamp() });
 }
 
 export async function addItem(atelierId, tag, text) {

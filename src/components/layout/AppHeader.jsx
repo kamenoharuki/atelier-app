@@ -1,11 +1,20 @@
-// 画面上部のヘッダー（アバター・名前・ステータス・ログアウト）
+// 画面上部のヘッダー（アバター・名前／右上に アトリエの開放状態・アーティストのオンライン状態・ログアウト）
 import { ROLE_LABEL } from '../../constants';
 import Avatar from '../common/Avatar';
-import StatusSelect, { StatusBadge } from './StatusSelect';
+import { OpenBadge, PresenceBadge } from '../common/StatusBadge';
 import { LogoutIcon, PencilIcon } from '../common/icons';
 import './AppHeader.css';
 
-export default function AppHeader({ role, profile, artistName, status, onChangeStatus, onOpenProfile, onLogout }) {
+export default function AppHeader({
+  role,
+  profile,
+  artistName,
+  hasAtelier,
+  isOpen,
+  isOnline,
+  onOpenProfile,
+  onLogout,
+}) {
   return (
     <header className="app-header">
       <button type="button" className="app-header__identity" onClick={onOpenProfile} aria-label="プロフィールを編集">
@@ -22,11 +31,12 @@ export default function AppHeader({ role, profile, artistName, status, onChangeS
       </button>
 
       <div className="app-header__actions">
-        {role === 'artist' && status ? (
-          <StatusSelect value={status} onChange={onChangeStatus} />
-        ) : status && artistName ? (
-          <StatusBadge status={status} label={`${artistName}さん`} />
-        ) : null}
+        {hasAtelier && (
+          <>
+            <OpenBadge isOpen={isOpen} />
+            <PresenceBadge online={isOnline} label={role === 'fan' && artistName ? `${artistName}さん` : undefined} />
+          </>
+        )}
         <button type="button" className="icon-btn" onClick={onLogout} aria-label="ログアウト" title="ログアウト">
           <LogoutIcon size={18} />
         </button>

@@ -1,6 +1,6 @@
 // プロフィールとアトリエのデータをリアルタイムで購読する
 import { collection, doc, limit, orderBy, query } from 'firebase/firestore';
-import { DEFAULT_AVATAR, DEFAULT_STATUS } from '../constants';
+import { DEFAULT_AVATAR } from '../constants';
 import { db } from '../firebase/config';
 import { toDate, useDocSnapshot, useQuerySnapshot } from './useSnapshot';
 
@@ -24,7 +24,13 @@ export function useAtelier(atelierId, role) {
   const atelier = useDocSnapshot(
     atelierId,
     () => doc(db, 'ateliers', atelierId),
-    (data) => ({ status: data.status ?? DEFAULT_STATUS, mood: data.mood ?? '' }),
+    (data) => ({
+      mood: data.mood ?? '',
+      // 旧仕様のステータス「アトリエ解放中」は開放中として扱う
+      isOpen: data.isOpen ?? data.status === 'アトリエ解放中',
+      online: Boolean(data.online),
+      lastActiveAt: toDate(data.lastActiveAt),
+    }),
   );
 
   const artist = useUserDoc(atelierId);

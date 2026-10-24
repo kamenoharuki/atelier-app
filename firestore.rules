@@ -3,7 +3,7 @@ rules_version = '2';
 // データ構造
 //   users/{uid}                         プロフィール（role / name / avatar / atelierId / lastSeenAt）
 //   atelierKeys/{key}                   12桁の鍵番号 → アーティストuid
-//   ateliers/{artistUid}                アトリエ（status / mood）
+//   ateliers/{artistUid}                アトリエ（mood / isOpen / online / lastActiveAt。旧データには status が残っている場合あり）
 //     items/{itemId}                    TODO / 悩み
 //     posts/{postId}                    ホームのタイムライン（アーティストのひとこと・ファンの投稿。メンバー全員が閲覧可）
 //     members/{fanUid}                  参加中のファン（応援回数つき）
@@ -61,10 +61,6 @@ service cloud.firestore {
       return value == request.time;
     }
 
-    function validStatus(status) {
-      return status in ['オンライン', '制作中', 'アトリエ解放中', '休憩中', 'オフライン'];
-    }
-
     match /users/{uid} {
       allow read: if signedIn();
 
@@ -102,14 +98,20 @@ service cloud.firestore {
       allow read: if canView(atelierId);
       allow create: if isSelf(atelierId)
         && getAfter(userPath(atelierId)).data.role == 'artist'
-        && request.resource.data.keys().hasOnly(['status', 'mood'])
-        && validStatus(request.resource.data.status)
-        && request.resource.data.mood is string;
-      allow update: if isArtistOf(atelierId)
-        && onlyChanges(['status', 'mood'])
-        && validStatus(request.resource.data.status)
+        && request.resource.data.keys().hasOnly(['mood', 'isOpen', 'online', 'lastActiveAt'])
         && request.resource.data.mood is string
-        && request.resource.data.mood.size() <= 140;
+        && request.resource.data.isOpen is bool
+        && request.resource.data.online is bool
+        && isNow(request.resource.data.lastActiveAt);
+      // オンライン表示（online / lastActiveAt）は本人のブラウザが自動で更新する
+      allow update: if isArtistOf(atelierId)
+        && onlyChanges(['mood', 'isOpen', 'online', 'lastActiveAt'])
+        && request.resource.data.mood is string
+        && request.resource.data.mood.size() <= 140
+        && request.resource.data.get('isOpen', false) is bool
+        && request.resource.data.get('online', false) is bool
+        && (!('lastActiveAt' in request.resource.data.diff(resource.data).affectedKeys())
+          || isNow(request.resource.data.lastActiveAt));
 
       match /items/{itemId} {
         allow read: if canView(atelierId);

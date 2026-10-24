@@ -9,7 +9,7 @@
 //   { type: 'preset', preset: 'person' など AVATAR_PRESETS の id } または { type: 'image', src: 画像のデータURL }
 //
 // アトリエ（ateliers/{アーティストの uid}）
-//   { status: STATUS_OPTIONS のどれか, mood: 最新のひとこと }
+//   { mood: 最新のひとこと, isOpen: 開放中かどうか, online: サイトを開いているか, lastActiveAt: 最後に「まだいる」と記録した時刻 }
 //
 // TODO・悩み（ateliers/{id}/items）
 //   { id, tag: 'TODO' | '悩み', text, giftCount, done }
@@ -28,26 +28,24 @@ export const ROLE_LABEL = {
   fan: 'ファン',
 };
 
-/* ===== アーティストのステータス ===== */
-
-export const STATUS_OPTIONS = [
-  { value: 'オンライン', hint: 'ファンからの反応を受け付けています' },
-  { value: '制作中', hint: '作業に集中しています' },
-  { value: 'アトリエ解放中', hint: 'ファンがアトリエに入室できます' },
-  { value: '休憩中', hint: 'ひと休みしています' },
-  { value: 'オフライン', hint: '現在は不在です' },
-];
+/* ===== アーティストの状態（ヘッダー右上などに表示） ===== */
 
 // 色は styles/theme.css の --status-* で定義
-export const STATUS_COLOR = {
-  オンライン: 'var(--status-online)',
-  制作中: 'var(--status-working)',
-  アトリエ解放中: 'var(--status-open)',
-  休憩中: 'var(--status-break)',
-  オフライン: 'var(--status-offline)',
+export const PRESENCE = {
+  online: { label: 'オンライン', color: 'var(--status-online)' },
+  offline: { label: 'オフライン', color: 'var(--status-offline)' },
 };
 
-export const DEFAULT_STATUS = 'オフライン';
+export const OPEN_STATE = {
+  open: { label: '開放中', color: 'var(--status-open)' },
+  closed: { label: '閉鎖中', color: 'var(--status-closed)' },
+};
+
+// オンライン表示の自動判定
+//   アーティストがサイトを開いている間は HEARTBEAT ごとに「まだいる」と記録する
+//   記録が TIMEOUT より古ければ、閉じ忘れや通信切れとみなしてオフライン表示にする
+export const PRESENCE_HEARTBEAT_MS = 60 * 1000;
+export const PRESENCE_TIMEOUT_MS = 150 * 1000;
 
 /* ===== アバター ===== */
 
