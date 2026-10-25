@@ -1,6 +1,7 @@
 // ホーム画面（アトリエ）
 //   アーティスト: タイムライン → TODO・悩みの追加 → 一覧
 //   ファン: タイムライン → TODO・悩みの一覧（ギフトを贈れる）
+//   ※ 投稿は右下の＋ボタン（AtelierApp で表示する NewPostButton）から行う
 import AddItemCard from '../components/home/AddItemCard';
 import PostFeed from '../components/home/PostFeed';
 import TaskCard from '../components/home/TaskCard';
@@ -8,12 +9,11 @@ import './HomeScreen.css';
 
 export default function HomeScreen({
   role,
-  artistName,
-  me,
+  myUid,
   posts,
   avatars,
   items,
-  onPost,
+  onReact,
   onAddItem,
   onToggleDone,
   onSendGift,
@@ -24,16 +24,12 @@ export default function HomeScreen({
 
   return (
     <div className="home-screen">
-      <div className="section-header">
-        <h2 className="section-header__title">タイムライン</h2>
+      <div className="home-screen__timeline">
+        <div className="section-header">
+          <h2 className="section-header__title">タイムライン</h2>
+        </div>
+        <PostFeed posts={posts} avatars={avatars} myUid={myUid} onReact={onReact} />
       </div>
-      <PostFeed
-        me={me}
-        posts={posts}
-        avatars={avatars}
-        placeholder={isArtist ? 'いま何してる？' : `${artistName}さんやファンのみんなに向けて投稿する`}
-        onPost={onPost}
-      />
 
       <div className="section-header">
         <h2 className="section-header__title">TODO・悩み</h2>

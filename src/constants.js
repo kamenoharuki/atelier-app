@@ -15,7 +15,7 @@
 //   { id, tag: 'TODO' | '悩み', text, giftCount, done }
 //
 // タイムラインの投稿（ateliers/{id}/posts）
-//   { id, uid, name, role, text, createdAt }
+//   { id, uid, name, role, text, createdAt, reactions: { ユーザーのuid: ['🔥', '🎨', ...] } }
 //
 // 通知
 //   アーティスト向け（notices）: { kind: 'gift' | 'post' | 'join' | 'cheer'（旧仕様）, fromName, itemText, message, createdAt }
@@ -56,6 +56,11 @@ export const AVATAR_PRESETS = [
 ];
 
 export const DEFAULT_AVATAR = { type: 'preset', preset: 'person' };
+
+/* ===== タイムラインのリアクション ===== */
+
+// 選べる絵文字（firestore.rules の validReactions と同じ並び・文字にすること）
+export const REACTIONS = ['🔥', '👏', '🎨', '💎', '❤️'];
 
 /* ===== 文字数・桁数 ===== */
 

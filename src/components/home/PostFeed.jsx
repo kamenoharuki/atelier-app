@@ -1,56 +1,19 @@
-// X のような投稿欄＋タイムライン
-import { useState } from 'react';
-import { DEFAULT_AVATAR, POST_MAX } from '../../constants';
+// X のようなタイムライン（新しい順）。投稿は右下の＋ボタン（NewPostButton）から行う
+//   1件ごとに アバター・名前・ユーザーID・日時・本文・リアクション を表示する
+import { DEFAULT_AVATAR } from '../../constants';
 import { formatRelative } from '../../utils/time';
 import Avatar from '../common/Avatar';
+import ReactionBar from './ReactionBar';
 import './PostFeed.css';
 
-export default function PostFeed({ me, posts, avatars, placeholder, onPost }) {
-  const [draft, setDraft] = useState('');
-  const text = draft.trim();
+// このアプリには @ID の仕組みが無いので、uid の先頭8文字をユーザーIDとして表示する
+const userId = (uid) => `@${uid.slice(0, 8)}`;
 
-  const submit = () => {
-    if (!text) return;
-    onPost(text);
-    setDraft('');
-  };
-
-  // Ctrl / ⌘ + Enter で投稿（Enter だけなら改行）
-  const onKeyDown = (e) => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      submit();
-    }
-  };
-
+export default function PostFeed({ posts, avatars, myUid, onReact }) {
   return (
     <section className="post-feed glass" aria-label="タイムライン">
-      <div className="post-composer">
-        <Avatar avatar={me.avatar} size={40} />
-        <div className="post-composer__body">
-          <textarea
-            className="post-composer__input"
-            rows={2}
-            maxLength={POST_MAX}
-            placeholder={placeholder}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={onKeyDown}
-            aria-label="投稿内容"
-          />
-          <div className="post-composer__footer">
-            <span className="post-composer__count">
-              {draft.length} / {POST_MAX}
-            </span>
-            <button type="button" className="btn btn--primary post-composer__submit" onClick={submit} disabled={!text}>
-              投稿する
-            </button>
-          </div>
-        </div>
-      </div>
-
       {posts.length === 0 ? (
-        <p className="post-feed__empty">まだ投稿はありません。最初のひとことを投稿してみましょう。</p>
+        <p className="post-feed__empty">まだ投稿はありません。右下の＋ボタンから最初のひとことを投稿してみましょう。</p>
       ) : (
         <ol className="post-feed__list">
           {posts.map((post) => (
@@ -60,11 +23,17 @@ export default function PostFeed({ me, posts, avatars, placeholder, onPost }) {
                 <div className="post__meta">
                   <span className="post__name">{post.name}</span>
                   {post.role === 'artist' && <span className="post__badge">アーティスト</span>}
+                  <span className="post__id">{userId(post.uid)}</span>
                   <time className="post__time" dateTime={post.createdAt.toISOString()}>
                     · {formatRelative(post.createdAt)}
                   </time>
                 </div>
                 <p className="post__text">{post.text}</p>
+                <ReactionBar
+                  reactions={post.reactions}
+                  myUid={myUid}
+                  onReact={(emoji, mine) => onReact(post.id, emoji, mine)}
+                />
               </div>
             </li>
           ))}

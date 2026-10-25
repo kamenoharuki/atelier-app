@@ -3,6 +3,18 @@
   flex-direction: column;
   gap: 20px;
   padding: var(--space-lg);
+  /* 右下の＋ボタンに最後の項目が隠れないように */
+  padding-bottom: 96px;
+}
+
+/* タイムラインは画面中央に、読みやすい幅で縦に並べる */
+.home-screen__timeline {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* ===== キービジュアル ===== */

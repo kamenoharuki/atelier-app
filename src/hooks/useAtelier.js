@@ -61,6 +61,7 @@ export function useAtelier(atelierId, role) {
       name: data.name ?? '',
       role: data.role,
       text: data.text ?? '',
+      reactions: data.reactions ?? {},
       createdAt: toDate(data.createdAt) ?? new Date(),
     }),
   );

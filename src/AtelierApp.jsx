@@ -4,6 +4,7 @@ import { signOut, updatePassword } from 'firebase/auth';
 import AppHeader from './components/layout/AppHeader';
 import TabBar from './components/layout/TabBar';
 import ProfileModal from './components/common/ProfileModal';
+import NewPostButton from './components/home/NewPostButton';
 import Toaster from './components/common/Toaster';
 import HomeScreen from './screens/HomeScreen';
 import NoAtelierScreen from './screens/NoAtelierScreen';
@@ -128,12 +129,11 @@ export default function AtelierApp({ authUser, user }) {
     return (
       <HomeScreen
         role={role}
-        artistName={artistName}
-        me={user}
+        myUid={uid}
         posts={posts}
         avatars={avatars}
         items={items}
-        onPost={(text) => run(api.createPost(atelierId, uid, user, text))}
+        onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
         onAddItem={(tag, text) => run(api.addItem(atelierId, tag, text))}
         onToggleDone={(id) => {
           const item = findItem(id);
@@ -183,6 +183,14 @@ export default function AtelierApp({ authUser, user }) {
             />
           )}
         </main>
+
+        {tab === 'home' && hasAtelier && !loading && (
+          <NewPostButton
+            me={user}
+            placeholder={role === 'artist' ? 'いま何してる？' : `${artistName}さんやファンのみんなに向けて投稿する`}
+            onPost={(text) => run(api.createPost(atelierId, uid, user, text))}
+          />
+        )}
 
         <TabBar active={tab} onChange={setTab} badges={{ notification: hasAtelier ? unread : 0 }} />
       </div>

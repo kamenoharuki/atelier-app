@@ -2,6 +2,7 @@
 // データ構造とアクセス権は firestore.rules に書いてある。ここを変えたらルールも合わせて更新すること
 import {
   collection,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -189,6 +190,7 @@ export async function createPost(atelierId, uid, user, text) {
     name: user.name,
     role: user.role,
     text,
+    reactions: {},
     createdAt: serverTimestamp(),
   });
   if (user.role === 'artist') {
@@ -208,4 +210,13 @@ export async function createPost(atelierId, uid, user, text) {
     });
   }
   await batch.commit();
+}
+
+// 投稿へのリアクションを付ける / 外す（自分の分だけ書き換える）
+//   mine: いま自分が付けている絵文字の一覧
+export function toggleReaction(atelierId, postId, uid, emoji, mine) {
+  const next = mine.includes(emoji) ? mine.filter((e) => e !== emoji) : [...mine, emoji];
+  return updateDoc(doc(db, 'ateliers', atelierId, 'posts', postId), {
+    [`reactions.${uid}`]: next.length > 0 ? next : deleteField(),
+  });
 }

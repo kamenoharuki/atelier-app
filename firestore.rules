@@ -61,6 +61,12 @@ service cloud.firestore {
       return value == request.time;
     }
 
+    // 投稿に付けられる絵文字（src/constants.js の REACTIONS と同じにすること）
+    function validReactions(list) {
+      return list is list && list.size() > 0 && list.size() <= 5
+        && list.hasOnly(['🔥', '👏', '🎨', '💎', '❤️']);
+    }
+
     match /users/{uid} {
       allow read: if signedIn();
 
@@ -156,12 +162,20 @@ service cloud.firestore {
         allow read: if canView(atelierId);
         // 名前とロールは本人のプロフィールと一致させる（なりすまし防止）
         allow create: if canView(atelierId)
-          && request.resource.data.keys().hasOnly(['uid', 'name', 'role', 'text', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'role', 'text', 'reactions', 'createdAt'])
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.name == get(userPath(request.auth.uid)).data.name
           && request.resource.data.role == get(userPath(request.auth.uid)).data.role
           && shortText(request.resource.data.text, 140)
+          && request.resource.data.get('reactions', {}) == {}
           && isNow(request.resource.data.createdAt);
+        // リアクション：メンバーは自分の分（reactions.自分のuid）だけ付け外しできる
+        allow update: if canView(atelierId)
+          && onlyChanges(['reactions'])
+          && request.resource.data.reactions is map
+          && request.resource.data.reactions.diff(resource.data.get('reactions', {})).affectedKeys().hasOnly([request.auth.uid])
+          && (!(request.auth.uid in request.resource.data.reactions)
+            || validReactions(request.resource.data.reactions[request.auth.uid]));
       }
 
       match /notices/{noticeId} {

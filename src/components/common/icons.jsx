@@ -186,3 +186,13 @@ export function HeartIcon(props) {
     </Svg>
   );
 }
+
+export function SmileIcon(props) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M8.5 14.5c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8" />
+      <path d="M9.2 9.8h.01M14.8 9.8h.01" strokeWidth="2.6" />
+    </Svg>
+  );
+}
