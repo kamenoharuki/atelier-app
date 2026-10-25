@@ -41,11 +41,8 @@ export const OPEN_STATE = {
   closed: { label: '閉鎖中', color: 'var(--status-closed)' },
 };
 
-// オンライン表示の自動判定
-//   アーティストがサイトを開いている間は HEARTBEAT ごとに「まだいる」と記録する
-//   記録が TIMEOUT より古ければ、閉じ忘れや通信切れとみなしてオフライン表示にする
+// オンラインの自動記録：アーティストがサイトを開いている間、この間隔で「まだいる」と記録する
 export const PRESENCE_HEARTBEAT_MS = 60 * 1000;
-export const PRESENCE_TIMEOUT_MS = 150 * 1000;
 
 /* ===== アバター ===== */
 

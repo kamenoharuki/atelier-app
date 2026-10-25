@@ -11,7 +11,6 @@ const AUTH_MESSAGES = {
   'auth/wrong-password': 'メールアドレスまたはパスワードが違います',
   'auth/user-not-found': 'メールアドレスまたはパスワードが違います',
   'auth/too-many-requests': '試行回数が多すぎます。しばらく待ってからお試しください',
-  'auth/popup-blocked': 'ポップアップがブロックされました。ブラウザの設定を確認してください',
   'auth/requires-recent-login': 'セキュリティのため、一度ログアウトして再ログインしてからお試しください',
   'auth/network-request-failed': 'ネットワークに接続できません',
   'auth/operation-not-allowed': 'このログイン方法は Firebase で有効になっていません',
@@ -22,12 +21,4 @@ const AUTH_MESSAGES = {
 export function errorMessage(error, fallback = 'エラーが発生しました。もう一度お試しください') {
   if (error instanceof FirebaseError) return AUTH_MESSAGES[error.code] ?? fallback;
   return fallback;
-}
-
-// ポップアップを自分で閉じた場合などはエラー表示しない
-export function isCancelled(error) {
-  return (
-    error instanceof FirebaseError &&
-    (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request')
-  );
 }

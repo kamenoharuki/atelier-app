@@ -10,7 +10,7 @@ import NoAtelierScreen from './screens/NoAtelierScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { useAtelier } from './hooks/useAtelier';
-import { useIsOnline, usePresence } from './hooks/usePresence';
+import { usePresence } from './hooks/usePresence';
 import { useToasts } from './hooks/useToasts';
 import * as api from './firebase/database';
 import { auth } from './firebase/config';
@@ -49,8 +49,6 @@ export default function AtelierApp({ authUser, user }) {
   useEffect(() => {
     if (role === 'artist' && missing) api.restoreAtelier(uid).catch(() => undefined);
   }, [role, missing, uid]);
-  const artistOnline = useIsOnline(atelier);
-  const isOnline = role === 'artist' || artistOnline;
   const artistName = artist?.name ?? '';
   const hasAtelier = Boolean(atelierId) && !denied;
 
@@ -131,8 +129,6 @@ export default function AtelierApp({ authUser, user }) {
       <HomeScreen
         role={role}
         artistName={artistName}
-        isOpen={isOpen}
-        isOnline={isOnline}
         me={user}
         posts={posts}
         avatars={avatars}
@@ -157,10 +153,8 @@ export default function AtelierApp({ authUser, user }) {
         <AppHeader
           role={role}
           profile={user}
-          artistName={hasAtelier ? artistName : undefined}
-          hasAtelier={hasAtelier}
+          showStatus={role === 'artist' && hasAtelier}
           isOpen={isOpen}
-          isOnline={isOnline}
           onOpenProfile={() => setProfileOpen(true)}
           onLogout={logout}
         />
@@ -175,11 +169,9 @@ export default function AtelierApp({ authUser, user }) {
               role={role}
               profile={user}
               email={authUser.email}
-              canChangePassword={authUser.providerData.some((p) => p.providerId === 'password')}
               artistName={hasAtelier ? artistName : undefined}
               hasAtelier={hasAtelier}
               isOpen={isOpen}
-              isOnline={isOnline}
               onChangeOpen={(next) => api.setAtelierOpen(uid, next)}
               onEditProfile={() => setProfileOpen(true)}
               onLogout={logout}

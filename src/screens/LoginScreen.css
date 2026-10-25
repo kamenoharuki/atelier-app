@@ -1,4 +1,4 @@
-/* ===== メール / Google ログイン ===== */
+/* ===== メールアドレスでのログイン ===== */
 .login__tabs {
   display: flex;
   gap: 4px;
@@ -40,20 +40,4 @@
 .login__info {
   font-size: 13px;
   color: var(--status-online);
-}
-
-.login__divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.login__divider::before,
-.login__divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border);
 }

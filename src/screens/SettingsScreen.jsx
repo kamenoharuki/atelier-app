@@ -2,7 +2,6 @@
 import { ROLE_LABEL } from '../constants';
 import Avatar from '../components/common/Avatar';
 import JoinAtelierForm from '../components/common/JoinAtelierForm';
-import { OpenBadge, PresenceBadge } from '../components/common/StatusBadge';
 import { LogoutIcon, PencilIcon } from '../components/common/icons';
 import KeyCard from '../components/settings/KeyCard';
 import OpenCard from '../components/settings/OpenCard';
@@ -14,11 +13,9 @@ export default function SettingsScreen({
   role,
   profile,
   email,
-  canChangePassword,
   artistName,
   hasAtelier,
   isOpen,
-  isOnline,
   onChangeOpen,
   onEditProfile,
   onLogout,
@@ -52,10 +49,6 @@ export default function SettingsScreen({
             <>
               <div className="settings-row">
                 <span>{artistName}さんのアトリエ</span>
-                <span className="settings-row__badges">
-                  <OpenBadge isOpen={isOpen} />
-                  <PresenceBadge online={isOnline} />
-                </span>
               </div>
               <LeaveButton onLeave={onLeave} />
               <p className="settings-card__description settings-card__description--flat">
@@ -82,13 +75,7 @@ export default function SettingsScreen({
             <span className="settings-row__value">{email}</span>
           </div>
         )}
-        {canChangePassword ? (
-          <PasswordForm onChangePassword={onChangePassword} />
-        ) : (
-          <p className="settings-card__description settings-card__description--flat">
-            Google アカウントでログインしています。パスワードは Google 側で管理されます。
-          </p>
-        )}
+        <PasswordForm onChangePassword={onChangePassword} />
       </section>
 
       <button type="button" className="btn btn--danger btn--block settings-screen__logout" onClick={onLogout}>

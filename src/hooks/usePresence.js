@@ -1,8 +1,8 @@
-// アーティストのオンライン / オフライン表示を自動で切り替える
-//   usePresence  : アーティスト本人のブラウザで、サイトを見ている間はオンライン、離れたらオフラインを記録する
-//   useIsOnline  : 記録をもとに、いまオンライン表示にするかを判定する（ファン側の表示用）
-import { useEffect, useState } from 'react';
-import { PRESENCE_HEARTBEAT_MS, PRESENCE_TIMEOUT_MS } from '../constants';
+// アーティストのオンライン / オフラインを自動で記録する
+//   サイトを見ている間はオンライン（1分ごとに「まだいる」と記録）、離れたらオフラインにする
+//   ※ いまは画面に表示していない（ファン側の表示はなくした）。ateliers/{uid} の online / lastActiveAt に残る
+import { useEffect } from 'react';
+import { PRESENCE_HEARTBEAT_MS } from '../constants';
 import { updatePresence } from '../firebase/database';
 
 export function usePresence(atelierId) {
@@ -39,17 +39,4 @@ export function usePresence(atelierId) {
       window.removeEventListener('pagehide', goOffline);
     };
   }, [atelierId]);
-}
-
-// 閉じたときのオフライン記録は届かないことがあるので、最後の記録が古ければオフライン扱いにする
-export function useIsOnline(atelier) {
-  const [now, setNow] = useState(() => Date.now());
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 30 * 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  if (!atelier?.online || !atelier.lastActiveAt) return false;
-  return now - atelier.lastActiveAt.getTime() < PRESENCE_TIMEOUT_MS;
 }

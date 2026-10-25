@@ -1,20 +1,11 @@
-// 画面上部のヘッダー（アバター・名前／右上に アトリエの開放状態・アーティストのオンライン状態・ログアウト）
+// 画面上部のヘッダー（アバター・名前／右上に ログアウト。アーティストにはアトリエの開放状態とオンライン状態も出す）
 import { ROLE_LABEL } from '../../constants';
 import Avatar from '../common/Avatar';
 import { OpenBadge, PresenceBadge } from '../common/StatusBadge';
 import { LogoutIcon, PencilIcon } from '../common/icons';
 import './AppHeader.css';
 
-export default function AppHeader({
-  role,
-  profile,
-  artistName,
-  hasAtelier,
-  isOpen,
-  isOnline,
-  onOpenProfile,
-  onLogout,
-}) {
+export default function AppHeader({ role, profile, showStatus, isOpen, onOpenProfile, onLogout }) {
   return (
     <header className="app-header">
       <button type="button" className="app-header__identity" onClick={onOpenProfile} aria-label="プロフィールを編集">
@@ -31,10 +22,11 @@ export default function AppHeader({
       </button>
 
       <div className="app-header__actions">
-        {hasAtelier && (
+        {showStatus && (
           <>
             <OpenBadge isOpen={isOpen} />
-            <PresenceBadge online={isOnline} label={role === 'fan' && artistName ? `${artistName}さん` : undefined} />
+            {/* サイトを見ている本人は常にオンライン */}
+            <PresenceBadge online />
           </>
         )}
         <button type="button" className="icon-btn" onClick={onLogout} aria-label="ログアウト" title="ログアウト">
