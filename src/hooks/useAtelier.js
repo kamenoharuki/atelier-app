@@ -1,6 +1,6 @@
 // プロフィールとアトリエのデータをリアルタイムで購読する
-import { collection, doc, limit, orderBy, query } from 'firebase/firestore';
-import { DEFAULT_AVATAR } from '../constants';
+import { collection, doc, limit, orderBy, query, Timestamp, where } from 'firebase/firestore';
+import { DEFAULT_AVATAR, POST_LIFETIME_DAYS } from '../constants';
 import { db } from '../firebase/config';
 import { toDate, useDocSnapshot, useQuerySnapshot } from './useSnapshot';
 
@@ -52,18 +52,33 @@ export function useAtelier(atelierId, role) {
     }),
   );
 
+  // タイムラインには作成から7日以内の投稿だけを読み込む（期限切れの投稿はデータとしては残る）
   const posts = useQuerySnapshot(
     atelierId ? `${atelierId}/posts` : null,
-    () => query(collection(db, 'ateliers', atelierId, 'posts'), orderBy('createdAt', 'desc'), limit(POST_LIMIT)),
-    (id, data) => ({
-      id,
-      uid: data.uid,
-      name: data.name ?? '',
-      role: data.role,
-      text: data.text ?? '',
-      reactions: data.reactions ?? {},
-      createdAt: toDate(data.createdAt) ?? new Date(),
-    }),
+    () =>
+      query(
+        collection(db, 'ateliers', atelierId, 'posts'),
+        where('createdAt', '>', Timestamp.fromMillis(Date.now() - POST_LIFETIME_DAYS * 24 * 60 * 60 * 1000)),
+        orderBy('createdAt', 'desc'),
+        limit(POST_LIMIT),
+      ),
+    (id, data) => {
+      const createdAt = toDate(data.createdAt) ?? new Date();
+      return {
+        id,
+        uid: data.uid,
+        name: data.name ?? '',
+        role: data.role,
+        text: data.text ?? '',
+        reactions: data.reactions ?? {},
+        image: data.image ?? null,
+        decodeGoal: data.decode?.goal ?? null,
+        isArchive: Boolean(data.isArchive),
+        createdAt,
+        // 以前の投稿には expiresAt が無いので、作成日時から計算する
+        expiresAt: toDate(data.expiresAt) ?? new Date(createdAt.getTime() + POST_LIFETIME_DAYS * 24 * 60 * 60 * 1000),
+      };
+    },
   );
 
   const notices = useQuerySnapshot(

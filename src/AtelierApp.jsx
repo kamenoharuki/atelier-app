@@ -4,7 +4,7 @@ import { signOut, updatePassword } from 'firebase/auth';
 import AppHeader from './components/layout/AppHeader';
 import TabBar from './components/layout/TabBar';
 import ProfileModal from './components/common/ProfileModal';
-import NewPostButton from './components/home/NewPostButton';
+import ComposeButton from './components/home/ComposeButton';
 import Toaster from './components/common/Toaster';
 import HomeScreen from './screens/HomeScreen';
 import NoAtelierScreen from './screens/NoAtelierScreen';
@@ -134,7 +134,6 @@ export default function AtelierApp({ authUser, user }) {
         avatars={avatars}
         items={items}
         onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
-        onAddItem={(tag, text) => run(api.addItem(atelierId, tag, text))}
         onToggleDone={(id) => {
           const item = findItem(id);
           if (item) run(api.toggleDone(atelierId, item));
@@ -185,10 +184,12 @@ export default function AtelierApp({ authUser, user }) {
         </main>
 
         {tab === 'home' && hasAtelier && !loading && (
-          <NewPostButton
+          <ComposeButton
+            isArtist={role === 'artist'}
             me={user}
             placeholder={role === 'artist' ? 'いま何してる？' : `${artistName}さんやファンのみんなに向けて投稿する`}
-            onPost={(text) => run(api.createPost(atelierId, uid, user, text))}
+            onPost={(text, options) => run(api.createPost(atelierId, uid, user, text, options))}
+            onAddItem={(tag, text) => run(api.addItem(atelierId, tag, text))}
           />
         )}
 

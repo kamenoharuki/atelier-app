@@ -15,7 +15,11 @@
 //   { id, tag: 'TODO' | '悩み', text, giftCount, done }
 //
 // タイムラインの投稿（ateliers/{id}/posts）
-//   { id, uid, name, role, text, createdAt, reactions: { ユーザーのuid: ['🔥', '🎨', ...] } }
+//   { id, uid, name, role, text, createdAt, reactions: { ユーザーのuid: ['❤️', '🔥', ...] },
+//     image: 画像のデータURL（アーティストのみ・任意）,
+//     decode: { goal: 解読に必要な人数 }（解読モードのときだけ。画像付きの投稿のみ）,
+//     expiresAt: 作成から7日後（これを過ぎるとタイムラインに出なくなる）,
+//     isArchive: 期限後にガチャのアーカイブへ入れる投稿か（アーティストが選ぶ） }
 //
 // 通知
 //   アーティスト向け（notices）: { kind: 'gift' | 'post' | 'join' | 'cheer'（旧仕様）, fromName, itemText, message, createdAt }
@@ -60,7 +64,15 @@ export const DEFAULT_AVATAR = { type: 'preset', preset: 'person' };
 /* ===== タイムラインのリアクション ===== */
 
 // 選べる絵文字（firestore.rules の validReactions と同じ並び・文字にすること）
-export const REACTIONS = ['🔥', '👏', '🎨', '💎', '❤️'];
+export const REACTIONS = ['❤️', '🔥', '👏', '👍'];
+
+/* ===== 投稿の期限・解読モード ===== */
+
+// 投稿がタイムラインに出ている日数（firestore.rules の expiresAt と合わせる）
+export const POST_LIFETIME_DAYS = 7;
+
+// 解読モードで設定できる必要人数の上限（firestore.rules と合わせる）
+export const DECODE_GOAL_MAX = 1000;
 
 /* ===== 文字数・桁数 ===== */
 

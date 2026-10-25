@@ -10,11 +10,12 @@ import {
   query,
   runTransaction,
   serverTimestamp,
+  Timestamp,
   updateDoc,
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { KEY_LENGTH } from '../constants';
+import { KEY_LENGTH, POST_LIFETIME_DAYS, REACTIONS } from '../constants';
 import { db } from './config';
 
 const userRef = (uid) => doc(db, 'users', uid);
@@ -182,22 +183,32 @@ export async function sendGift(atelierId, uid, fromName, item) {
 
 /* ===== タイムライン ===== */
 
-// アーティストの投稿はファンへ、ファンの投稿はアーティストへ通知する
-export async function createPost(atelierId, uid, user, text) {
-  const batch = writeBatch(db);
-  batch.set(newDocIn(atelierId, 'posts'), {
+// 投稿する。アーティストの投稿はファンへ、ファンの投稿はアーティストへ通知する
+//   options（アーティストのみ）: image 画像のデータURL / decodeGoal 解読に必要な人数（解読モード） / isArchive
+export async function createPost(atelierId, uid, user, text, options = {}) {
+  const { image, decodeGoal, isArchive = false } = options;
+  const post = {
     uid,
     name: user.name,
     role: user.role,
     text,
     reactions: {},
     createdAt: serverTimestamp(),
-  });
+    // 有効期限：作成から7日後（ルールでもこの値になっているか確かめる）
+    expiresAt: Timestamp.fromMillis(Date.now() + POST_LIFETIME_DAYS * 24 * 60 * 60 * 1000),
+    isArchive,
+  };
+  if (image) post.image = image;
+  if (image && decodeGoal) post.decode = { goal: decodeGoal };
+
+  const batch = writeBatch(db);
+  batch.set(newDocIn(atelierId, 'posts'), post);
+  const summary = text || (decodeGoal ? '解読モードの画像' : '画像');
   if (user.role === 'artist') {
-    batch.update(atelierRef(atelierId), { mood: text });
+    if (text) batch.update(atelierRef(atelierId), { mood: text });
     batch.set(newDocIn(atelierId, 'updates'), {
       kind: 'mood',
-      text: `ひとことを投稿しました：「${text}」`,
+      text: text ? `ひとことを投稿しました：「${text}」` : `${summary}を投稿しました`,
       createdAt: serverTimestamp(),
     });
   } else {
@@ -205,7 +216,7 @@ export async function createPost(atelierId, uid, user, text) {
       kind: 'post',
       fromUid: uid,
       fromName: user.name,
-      message: text,
+      message: summary,
       createdAt: serverTimestamp(),
     });
   }
@@ -215,7 +226,9 @@ export async function createPost(atelierId, uid, user, text) {
 // 投稿へのリアクションを付ける / 外す（自分の分だけ書き換える）
 //   mine: いま自分が付けている絵文字の一覧
 export function toggleReaction(atelierId, postId, uid, emoji, mine) {
-  const next = mine.includes(emoji) ? mine.filter((e) => e !== emoji) : [...mine, emoji];
+  // 以前の選択肢（🎨 💎 など）が残っているとルールで拒否されるので、いまの選択肢だけにしてから書き込む
+  const current = mine.filter((e) => REACTIONS.includes(e));
+  const next = current.includes(emoji) ? current.filter((e) => e !== emoji) : [...current, emoji];
   return updateDoc(doc(db, 'ateliers', atelierId, 'posts', postId), {
     [`reactions.${uid}`]: next.length > 0 ? next : deleteField(),
   });

@@ -1,8 +1,10 @@
-// X のようなタイムライン（新しい順）。投稿は右下の＋ボタン（NewPostButton）から行う
-//   1件ごとに アバター・名前・ユーザーID・日時・本文・リアクション を表示する
+// X のようなタイムライン（新しい順）。投稿は＋ボタン（ComposeButton）から行う
+//   1件ごとに アバター・名前・ユーザーID・日時・本文・画像（解読モード）・リアクション を表示する
+//   作成から7日を過ぎた投稿は表示しない
 import { DEFAULT_AVATAR } from '../../constants';
 import { formatRelative } from '../../utils/time';
 import Avatar from '../common/Avatar';
+import DecodeMedia from './DecodeMedia';
 import ReactionBar from './ReactionBar';
 import './PostFeed.css';
 
@@ -10,13 +12,17 @@ import './PostFeed.css';
 const userId = (uid) => `@${uid.slice(0, 8)}`;
 
 export default function PostFeed({ posts, avatars, myUid, onReact }) {
+  // 画面を開いたまま期限が過ぎた投稿も消えるように、表示するときにも期限を確かめる
+  const now = Date.now();
+  const visible = posts.filter((post) => post.expiresAt.getTime() > now);
+
   return (
     <section className="post-feed glass" aria-label="タイムライン">
-      {posts.length === 0 ? (
-        <p className="post-feed__empty">まだ投稿はありません。右下の＋ボタンから最初のひとことを投稿してみましょう。</p>
+      {visible.length === 0 ? (
+        <p className="post-feed__empty">まだ投稿はありません。＋ボタンから最初のひとことを投稿してみましょう。</p>
       ) : (
         <ol className="post-feed__list">
-          {posts.map((post) => (
+          {visible.map((post) => (
             <li key={post.id} className={`post ${post.role === 'artist' ? 'is-artist' : ''}`}>
               <Avatar avatar={avatars[post.uid] ?? DEFAULT_AVATAR} size={40} />
               <div className="post__body">
@@ -28,7 +34,16 @@ export default function PostFeed({ posts, avatars, myUid, onReact }) {
                     · {formatRelative(post.createdAt)}
                   </time>
                 </div>
-                <p className="post__text">{post.text}</p>
+                {post.text && <p className="post__text">{post.text}</p>}
+                {post.image && (
+                  <DecodeMedia
+                    image={post.image}
+                    decodeGoal={post.decodeGoal}
+                    reactions={post.reactions}
+                    authorUid={post.uid}
+                    myUid={myUid}
+                  />
+                )}
                 <ReactionBar
                   reactions={post.reactions}
                   myUid={myUid}

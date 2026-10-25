@@ -1,23 +1,12 @@
 // ホーム画面（アトリエ）
-//   アーティスト: タイムライン → TODO・悩みの追加 → 一覧
-//   ファン: タイムライン → TODO・悩みの一覧（ギフトを贈れる）
-//   ※ 投稿は右下の＋ボタン（AtelierApp で表示する NewPostButton）から行う
-import AddItemCard from '../components/home/AddItemCard';
+//   タイムライン → TODO・悩みの一覧（ファンはギフトを贈れる）
+//   ※ 投稿・TODOの追加は＋ボタン（AtelierApp で表示する ComposeButton）から行う
+//     アーティストは左下（投稿 と TODO・悩み）、ファンは右下（投稿のみ）
 import PostFeed from '../components/home/PostFeed';
 import TaskCard from '../components/home/TaskCard';
 import './HomeScreen.css';
 
-export default function HomeScreen({
-  role,
-  myUid,
-  posts,
-  avatars,
-  items,
-  onReact,
-  onAddItem,
-  onToggleDone,
-  onSendGift,
-}) {
+export default function HomeScreen({ role, myUid, posts, avatars, items, onReact, onToggleDone, onSendGift }) {
   const isArtist = role === 'artist';
 
   const sortedItems = [...items].sort((a, b) => Number(a.done) - Number(b.done));
@@ -36,11 +25,9 @@ export default function HomeScreen({
         <span className="section-header__meta">{items.length}件</span>
       </div>
 
-      {isArtist && <AddItemCard onAddItem={onAddItem} />}
-
       {items.length === 0 && (
         <p className="card__empty home-screen__empty">
-          {isArtist ? 'まだありません。TODOや悩みを追加してみましょう。' : 'まだありません。'}
+          {isArtist ? 'まだありません。左下の＋ボタンからTODOや悩みを追加できます。' : 'まだありません。'}
         </p>
       )}
 
