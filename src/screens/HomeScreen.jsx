@@ -15,8 +15,12 @@ export default function HomeScreen({ role, myUid, posts, avatars, items, onReact
     <div className="home-screen">
       <PostFeed posts={posts} avatars={avatars} myUid={myUid} onReact={onReact} />
 
-      {items.length === 0 && isArtist && (
-        <p className="card__empty">まだTODO・悩みはありません。左下の＋ボタンから追加できます。</p>
+      {items.length === 0 && (
+        <p className="card__empty">
+          {isArtist
+            ? 'まだTODO・悩みはありません。左下の＋ボタンから追加できます。'
+            : 'アーティストのTODO・悩みはまだありません。'}
+        </p>
       )}
 
       <div className="gallery" aria-label="TODO・悩み">
