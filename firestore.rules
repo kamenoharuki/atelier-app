@@ -248,6 +248,9 @@ service cloud.firestore {
           && request.resource.data.reactions.diff(resource.data.get('reactions', {})).affectedKeys().hasOnly([request.auth.uid])
           && (!(request.auth.uid in request.resource.data.reactions)
             || validReactions(request.resource.data.reactions[request.auth.uid]));
+        // 削除：投稿した本人と、アトリエのアーティスト（ファンの投稿も消せる）
+        allow delete: if isArtistOf(atelierId)
+          || (signedIn() && resource.data.uid == request.auth.uid);
       }
 
       // コメント（アーティストへの手紙）：ファンだけが、アーティストの投稿に送れる

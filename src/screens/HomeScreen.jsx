@@ -25,6 +25,7 @@ export default function HomeScreen({
   onClosePost,
   onReact,
   onComment,
+  onDeletePost,
   onToggleDone,
   onSendGift,
 }) {
@@ -47,6 +48,7 @@ export default function HomeScreen({
         onBack={onClosePost}
         onReact={(emoji, mine) => onReact(openPost.id, emoji, mine)}
         onComment={(text) => onComment(openPost.id, text)}
+        onDelete={() => onDeletePost(openPost.id)}
       />
     );
   }

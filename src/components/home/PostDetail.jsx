@@ -1,6 +1,8 @@
 // 投稿の詳細画面（X の投稿詳細のように、上に投稿・その下にコメント・画面の下にコメント入力欄）
 //   コメントを送れるのは、アーティストの投稿に対するファンだけ（アーティストへの手紙）
-import { ArrowLeftIcon } from '../common/icons';
+//   右上のゴミ箱ボタンで投稿を削除できる（投稿した本人と、アーティスト）
+import { useState } from 'react';
+import { ArrowLeftIcon, TrashIcon } from '../common/icons';
 import { CommentBox, CommentList } from './Comments';
 import PostCard from './PostCard';
 import './PostDetail.css';
@@ -16,8 +18,18 @@ export default function PostDetail({
   onBack,
   onReact,
   onComment,
+  onDelete,
 }) {
   const acceptsComments = post.role === 'artist';
+  const canDelete = isArtist || post.uid === myUid;
+  const [deleting, setDeleting] = useState(false);
+
+  const remove = async () => {
+    if (!window.confirm('この投稿を削除しますか？削除すると元に戻せません。')) return;
+    setDeleting(true);
+    // 成功したら詳細画面は閉じられるので、失敗したときだけボタンを戻す
+    if (!(await onDelete())) setDeleting(false);
+  };
 
   return (
     <div className="post-detail">
@@ -26,6 +38,18 @@ export default function PostDetail({
           <ArrowLeftIcon size={20} />
         </button>
         <h2 className="post-detail__title">投稿</h2>
+        {canDelete && (
+          <button
+            type="button"
+            className="icon-btn post-detail__delete"
+            onClick={remove}
+            disabled={deleting}
+            aria-label="この投稿を削除する"
+            title="削除"
+          >
+            <TrashIcon size={20} />
+          </button>
+        )}
       </div>
 
       <div className="post-detail__scroll">

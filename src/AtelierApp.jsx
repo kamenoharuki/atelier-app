@@ -215,6 +215,14 @@ export default function AtelierApp({ authUser, user }) {
         onClosePost={closePost}
         onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
         onComment={(postId, text) => tryRun(api.addComment(atelierId, postId, uid, user, text))}
+        onDeletePost={async (postId) => {
+          const ok = await tryRun(api.deletePost(atelierId, postId));
+          if (ok) {
+            closePost();
+            push('投稿を削除しました');
+          }
+          return ok;
+        }}
         onToggleDone={(id) => {
           const item = findItem(id);
           if (item) run(api.toggleDone(atelierId, item));

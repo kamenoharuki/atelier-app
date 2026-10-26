@@ -20,6 +20,15 @@
   color: var(--color-text);
 }
 
+/* 削除ボタンはバーの右端に置き、押せそうなときだけ赤くする */
+.post-detail__delete {
+  margin-left: auto;
+}
+
+.post-detail__delete:hover:not(:disabled) {
+  color: #ff6b6b;
+}
+
 .post-detail__scroll {
   flex: 1;
   min-height: 0;

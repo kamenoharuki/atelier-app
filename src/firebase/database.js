@@ -2,6 +2,7 @@
 // データ構造とアクセス権は firestore.rules に書いてある。ここを変えたらルールも合わせて更新すること
 import {
   collection,
+  deleteDoc,
   deleteField,
   doc,
   getDoc,
@@ -267,6 +268,12 @@ export async function addComment(atelierId, postId, uid, user, text) {
       createdAt: serverTimestamp(),
     });
   });
+}
+
+// 投稿を削除する（投稿した本人と、アトリエのアーティストができる）
+//   その投稿に届いたコメントは消さずに残す（アーティストへの手紙なので、お知らせには残る）
+export function deletePost(atelierId, postId) {
+  return deleteDoc(doc(db, 'ateliers', atelierId, 'posts', postId));
 }
 
 // 投稿へのリアクションを付ける / 外す（自分の分だけ書き換える）
