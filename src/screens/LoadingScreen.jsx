@@ -3,7 +3,7 @@ import AuthLayout from '../components/common/AuthLayout';
 
 export default function LoadingScreen() {
   return (
-    <AuthLayout>
+    <AuthLayout brand="Loading">
       <div className="login__spinner" role="status" aria-label="読み込み中" />
     </AuthLayout>
   );
