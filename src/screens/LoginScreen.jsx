@@ -56,7 +56,7 @@ export default function LoginScreen() {
   return (
     <AuthLayout>
       <div className="login__heading">
-        <h1 className="login__title">{mode === 'login' ? 'アトリエへようこそ' : 'アカウントを作成'}</h1>
+        <h1 className="login__title">{mode === 'login' ? 'ルームへようこそ' : 'アカウントを作成'}</h1>
         <p className="login__lead">
           {mode === 'login'
             ? 'メールアドレスとパスワードでログインしてください。'

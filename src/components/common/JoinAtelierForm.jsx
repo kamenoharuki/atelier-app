@@ -22,7 +22,7 @@ export default function JoinAtelierForm({ onJoin }) {
       await onJoin(key);
       setKey('');
     } catch (err) {
-      setError(err instanceof KeyNotFoundError ? 'この鍵番号のアトリエは見つかりませんでした' : errorMessage(err));
+      setError(err instanceof KeyNotFoundError ? 'この鍵番号のルームは見つかりませんでした' : errorMessage(err));
     } finally {
       setBusy(false);
     }
@@ -31,7 +31,7 @@ export default function JoinAtelierForm({ onJoin }) {
   return (
     <form className="join-form" onSubmit={submit} noValidate>
       <label className="field">
-        <span className="field__label">アトリエの鍵番号</span>
+        <span className="field__label">ルームの鍵番号</span>
         <div className="join-form__row">
           <input
             className="input"

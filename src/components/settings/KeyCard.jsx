@@ -64,8 +64,8 @@ export default function KeyCard({ onLoadKey, onChangeKey }) {
 
   return (
     <section className="settings-card glass">
-      <h2 className="settings-card__title">アトリエの鍵番号</h2>
-      <p className="settings-card__description">ファンをアトリエに招待するときに伝える{KEY_LENGTH}桁の番号です。</p>
+      <h2 className="settings-card__title">ルームの鍵番号</h2>
+      <p className="settings-card__description">ファンをルームに招待するときに伝える{KEY_LENGTH}桁の番号です。</p>
 
       <div className="key-display">
         <span className="key-display__value">{masked}</span>

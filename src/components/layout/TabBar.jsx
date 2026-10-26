@@ -3,7 +3,7 @@ import { HomeIcon, BellIcon, GearIcon } from '../common/icons';
 import './TabBar.css';
 
 const TABS = [
-  { key: 'home', label: 'アトリエ', icon: <HomeIcon /> },
+  { key: 'home', label: 'ルーム', icon: <HomeIcon /> },
   { key: 'notification', label: '通知', icon: <BellIcon /> },
   { key: 'settings', label: '設定', icon: <GearIcon /> },
 ];

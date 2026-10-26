@@ -28,7 +28,7 @@ export default function NotificationScreen({ role, notices, ranking, onOpenPost 
         <p className="notification-screen__caption">
           {role === 'artist'
             ? 'あなたを応援してくれているファンのランキングです。'
-            : 'このアトリエの応援ランキングです。'}
+            : 'このルームの応援ランキングです。'}
         </p>
       )}
 

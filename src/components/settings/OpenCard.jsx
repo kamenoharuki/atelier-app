@@ -21,7 +21,7 @@ export default function OpenCard({ isOpen, onChangeOpen }) {
 
   return (
     <section className="settings-card glass">
-      <h2 className="settings-card__title">アトリエの開放</h2>
+      <h2 className="settings-card__title">ルームの開放</h2>
       <p className="settings-card__description">
         開放中か閉鎖中かは、画面右上に表示されます。切り替えるとファンに通知が届きます。
       </p>
@@ -33,7 +33,7 @@ export default function OpenCard({ isOpen, onChangeOpen }) {
           onClick={toggle}
           disabled={busy}
         >
-          {isOpen ? 'アトリエを閉鎖する' : 'アトリエを開放する'}
+          {isOpen ? 'ルームを閉鎖する' : 'ルームを開放する'}
         </button>
       </div>
       {error && (

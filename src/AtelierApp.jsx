@@ -30,7 +30,7 @@ const artistNoticeText = (notice) => {
     case 'post':
       return `${notice.fromName}さんがタイムラインに投稿しました：「${notice.message}」`;
     case 'join':
-      return `${notice.fromName}さんがアトリエに参加しました`;
+      return `${notice.fromName}さんがルームに参加しました`;
   }
 };
 

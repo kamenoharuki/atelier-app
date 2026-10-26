@@ -104,7 +104,7 @@ export async function setAtelierOpen(atelierId, isOpen) {
   batch.update(atelierRef(atelierId), { isOpen });
   batch.set(newDocIn(atelierId, 'updates'), {
     kind: 'status',
-    text: isOpen ? 'アトリエを開放しました' : 'アトリエを閉鎖しました',
+    text: isOpen ? 'ルームを開放しました' : 'ルームを閉鎖しました',
     createdAt: serverTimestamp(),
   });
   await batch.commit();

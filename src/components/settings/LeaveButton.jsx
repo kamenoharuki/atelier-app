@@ -7,7 +7,7 @@ export default function LeaveButton({ onLeave }) {
   const [error, setError] = useState('');
 
   const leave = async () => {
-    if (!window.confirm('このアトリエから退出しますか？応援回数はリセットされます。')) return;
+    if (!window.confirm('このルームから退出しますか？応援回数はリセットされます。')) return;
     setBusy(true);
     try {
       await onLeave();
@@ -20,7 +20,7 @@ export default function LeaveButton({ onLeave }) {
   return (
     <>
       <button type="button" className="btn btn--ghost settings-card__action" onClick={leave} disabled={busy}>
-        アトリエから退出する
+        ルームから退出する
       </button>
       {error && (
         <p className="field__error" role="alert">

@@ -47,15 +47,15 @@ export default function SettingsScreen({
 
       {role === 'fan' && (
         <section className="settings-card glass">
-          <h2 className="settings-card__title">参加中のアトリエ</h2>
+          <h2 className="settings-card__title">参加中のルーム</h2>
           {artistName && hasAtelier ? (
             <>
               <div className="settings-row">
-                <span>{artistName}さんのアトリエ</span>
+                <span>{artistName}さんのルーム</span>
               </div>
               <LeaveButton onLeave={onLeave} />
               <p className="settings-card__description settings-card__description--flat">
-                別のアトリエに移る場合は、新しい鍵番号を入力してください。
+                別のルームに移る場合は、新しい鍵番号を入力してください。
               </p>
             </>
           ) : (

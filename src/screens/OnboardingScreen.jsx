@@ -15,13 +15,13 @@ const ROLES = [
   {
     role: 'artist',
     title: 'アーティストとしてはじめる',
-    description: '制作のTODOや悩みを共有し、アトリエのステータスを管理します。',
+    description: '制作のTODOや悩みを共有し、ルームのステータスを管理します。',
     icon: <BrushIcon size={22} />,
   },
   {
     role: 'fan',
     title: 'ファンとしてはじめる',
-    description: '鍵番号でアトリエに参加して、ギフトや応援メッセージを届けます。',
+    description: '鍵番号でルームに参加して、ギフトや応援メッセージを届けます。',
     icon: <HeartIcon size={22} />,
   },
 ];
