@@ -51,6 +51,11 @@
   white-space: nowrap;
 }
 
+.settings-profile__handle {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
 .settings-profile__role {
   font-size: 13px;
   color: var(--color-text-muted);

@@ -1,4 +1,5 @@
 // プロフィールとアトリエのデータをリアルタイムで購読する
+import { useState } from 'react';
 import { collection, doc, limit, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import { DEFAULT_AVATAR, POST_LIFETIME_DAYS } from '../constants';
 import { db } from '../firebase/config';
@@ -6,12 +7,14 @@ import { toDate, useDocSnapshot, useQuerySnapshot } from './useSnapshot';
 
 const NOTICE_LIMIT = 50;
 const POST_LIMIT = 100;
+const POST_PAGE = 50; // アーティストが「さらに読み込む」を押すたびに増やす件数
 const COMMENT_LIMIT = 300;
 
 const mapUser = (data) => ({
   role: data.role,
   name: data.name ?? '',
   avatar: data.avatar ?? DEFAULT_AVATAR,
+  handle: data.handle ?? null,
   atelierId: data.atelierId ?? null,
   lastSeenAt: toDate(data.lastSeenAt),
 });
@@ -49,20 +52,28 @@ export function useAtelier(atelierId, role, uid) {
       id,
       name: data.name ?? '',
       avatar: data.avatar ?? DEFAULT_AVATAR,
+      handle: data.handle ?? null,
       giftCount: data.giftCount ?? 0,
     }),
   );
 
-  // タイムラインには作成から7日以内の投稿だけを読み込む（期限切れの投稿はデータとしては残る）
+  // タイムラインの投稿
+  //   ファン      : 作成から7日以内の投稿だけ（期限切れの投稿はデータとしては残る）
+  //   アーティスト: 期限切れも含めた過去の投稿すべて。新しい順に POST_PAGE 件ずつ読み込む
+  const isArtist = role === 'artist';
+  const [postLimit, setPostLimit] = useState(POST_PAGE);
   const posts = useQuerySnapshot(
-    atelierId ? `${atelierId}/posts` : null,
-    () =>
-      query(
-        collection(db, 'ateliers', atelierId, 'posts'),
+    atelierId ? `${atelierId}/posts/${isArtist ? postLimit : 'recent'}` : null,
+    () => {
+      const ref = collection(db, 'ateliers', atelierId, 'posts');
+      if (isArtist) return query(ref, orderBy('createdAt', 'desc'), limit(postLimit));
+      return query(
+        ref,
         where('createdAt', '>', Timestamp.fromMillis(Date.now() - POST_LIFETIME_DAYS * 24 * 60 * 60 * 1000)),
         orderBy('createdAt', 'desc'),
         limit(POST_LIMIT),
-      ),
+      );
+    },
     (id, data) => {
       const createdAt = toDate(data.createdAt) ?? new Date();
       return {
@@ -81,6 +92,7 @@ export function useAtelier(atelierId, role, uid) {
         expiresAt: toDate(data.expiresAt) ?? new Date(createdAt.getTime() + POST_LIFETIME_DAYS * 24 * 60 * 60 * 1000),
       };
     },
+    atelierId ? `${atelierId}/posts` : null,
   );
 
   const notices = useQuerySnapshot(
@@ -136,6 +148,10 @@ export function useAtelier(atelierId, role, uid) {
     items: items.data,
     members: members.data,
     posts: posts.data,
+    // アーティストだけ：さらに古い投稿があるかもしれない（読み込んだ件数が上限に達している）
+    hasMorePosts: isArtist && posts.data.length >= postLimit,
+    morePostsLoading: isArtist && posts.loading && posts.data.length > 0,
+    loadMorePosts: () => setPostLimit((n) => n + POST_PAGE),
     notices: notices.data,
     updates: updates.data,
     comments: comments.data,

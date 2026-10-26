@@ -1,6 +1,6 @@
-// 名前とアバターを編集するダイアログ
+// 名前・@ユーザーネーム・アバターを編集するダイアログ
 import { useEffect, useRef, useState } from 'react';
-import { AVATAR_PRESETS } from '../../constants';
+import { AVATAR_PRESETS, HANDLE_MAX, HANDLE_PATTERN } from '../../constants';
 import { errorMessage } from '../../utils/errors';
 import { resizeImage } from '../../utils/image';
 import Avatar from './Avatar';
@@ -13,6 +13,7 @@ const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 export default function ProfileModal({ profile, onSave, onClose }) {
   const [name, setName] = useState(profile.name);
   const [avatar, setAvatar] = useState(profile.avatar);
+  const [handle, setHandle] = useState(profile.handle ?? '');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
@@ -48,17 +49,22 @@ export default function ProfileModal({ profile, onSave, onClose }) {
   };
 
   const trimmedName = name.trim();
+  const handleValid = handle === '' || HANDLE_PATTERN.test(handle);
 
   const submit = async (e) => {
     e.preventDefault();
     if (!trimmedName) {
-      setError('ユーザーネームを入力してください');
+      setError('名前を入力してください');
       nameRef.current?.focus();
+      return;
+    }
+    if (!handleValid) {
+      setError('ユーザーネームは半角英小文字・数字・_ の3〜15文字にしてください');
       return;
     }
     setSaving(true);
     try {
-      await onSave({ name: trimmedName, avatar });
+      await onSave({ name: trimmedName, avatar, handle: handle || null });
     } catch (err) {
       setError(errorMessage(err, '保存できませんでした。もう一度お試しください'));
       setSaving(false);
@@ -88,12 +94,13 @@ export default function ProfileModal({ profile, onSave, onClose }) {
           <Avatar avatar={avatar} size={72} />
           <div className="profile-preview__text">
             <span className="profile-preview__name">{trimmedName || '未設定'}</span>
+            {handle && <span className="field__hint">@{handle}</span>}
             <span className="field__hint">プレビュー</span>
           </div>
         </div>
 
         <label className="field">
-          <span className="field__label">ユーザーネーム</span>
+          <span className="field__label">名前</span>
           <input
             ref={nameRef}
             className="input"
@@ -107,6 +114,32 @@ export default function ProfileModal({ profile, onSave, onClose }) {
           />
           <span className="field__hint">
             {name.length} / {NAME_MAX}
+          </span>
+        </label>
+
+        <label className="field">
+          <span className="field__label">ユーザーネーム（@のあと）</span>
+          <div className="handle-input">
+            <span className="handle-input__at" aria-hidden="true">
+              @
+            </span>
+            <input
+              className="input"
+              value={handle}
+              maxLength={HANDLE_MAX}
+              placeholder="例: atelier_2026"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              onChange={(e) => {
+                // 大文字は小文字に、@ は取り除く
+                setHandle(e.target.value.toLowerCase().replace(/@/g, ''));
+                if (error) setError('');
+              }}
+            />
+          </div>
+          <span className={handleValid ? 'field__hint' : 'field__error'}>
+            半角英小文字・数字・_ の3〜15文字。ほかの人と同じものは使えません（空欄なら自動のIDを表示）
           </span>
         </label>
 

@@ -1,7 +1,8 @@
 rules_version = '2';
 
 // データ構造
-//   users/{uid}                         プロフィール（role / name / avatar / atelierId / lastSeenAt）
+//   users/{uid}                         プロフィール（role / name / avatar / atelierId / lastSeenAt / handle）
+//   handles/{handle}                    @ユーザーネーム → 使っている人の uid（同じユーザーネームを2人が使えないようにする）
 //   atelierKeys/{key}                   12桁の鍵番号 → アーティストuid
 //   ateliers/{artistUid}                アトリエ（mood / isOpen / online / lastActiveAt。旧データには status が残っている場合あり）
 //     items/{itemId}                    TODO / 悩み
@@ -90,6 +91,15 @@ service cloud.firestore {
       return t.year() * 10000 + t.month() * 100 + t.day();
     }
 
+    // @ユーザーネーム：半角英小文字・数字・_ の3〜15文字。未設定（null）でもよい（src/constants.js の HANDLE_PATTERN と合わせる）
+    function validHandle(handle) {
+      return handle == null || (handle is string && handle.matches('^[a-z0-9_]{3,15}$'));
+    }
+
+    function handlePath(handle) {
+      return /databases/$(database)/documents/handles/$(handle);
+    }
+
     match /users/{uid} {
       allow read: if signedIn();
 
@@ -101,13 +111,31 @@ service cloud.firestore {
         && request.resource.data.atelierId == null;
 
       // ロールは変更不可。参加アトリエは、実際にメンバーになっている場合のみ設定できる
+      // @ユーザーネームを変えるときは、同時に台帳（handles）でその名前を自分のものにしていること
       allow update: if isSelf(uid)
-        && onlyChanges(['name', 'avatar', 'atelierId', 'lastSeenAt'])
+        && onlyChanges(['name', 'avatar', 'atelierId', 'lastSeenAt', 'handle'])
         && validName(request.resource.data.name)
         && validAvatar(request.resource.data.avatar)
+        && validHandle(request.resource.data.get('handle', null))
+        && (request.resource.data.get('handle', null) == resource.data.get('handle', null)
+          || request.resource.data.handle == null
+          || getAfter(handlePath(request.resource.data.handle)).data.uid == uid)
         && (request.resource.data.atelierId == null
           || request.resource.data.atelierId == resource.data.atelierId
           || existsAfter(memberPath(request.resource.data.atelierId, uid)));
+    }
+
+    // @ユーザーネームの台帳：自分のプロフィールに設定する名前だけを取れる。手放すのも自分の分だけ
+    match /handles/{handle} {
+      allow get: if signedIn();
+      allow create: if signedIn()
+        && handle.matches('^[a-z0-9_]{3,15}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(userPath(request.auth.uid)).data.get('handle', null) == handle;
+      allow delete: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && getAfter(userPath(request.auth.uid)).data.get('handle', null) != handle;
     }
 
     match /atelierKeys/{key} {
@@ -166,16 +194,19 @@ service cloud.firestore {
         // 正しい鍵番号を知っているファンだけが参加できる
         allow create: if isSelf(memberId)
           && get(userPath(memberId)).data.role == 'fan'
-          && request.resource.data.keys().hasOnly(['key', 'name', 'avatar', 'giftCount', 'joinedAt'])
+          && request.resource.data.keys().hasOnly(['key', 'name', 'avatar', 'handle', 'giftCount', 'joinedAt'])
           && get(/databases/$(database)/documents/atelierKeys/$(request.resource.data.key)).data.artistUid == atelierId
           && validName(request.resource.data.name)
           && validAvatar(request.resource.data.avatar)
+          && request.resource.data.get('handle', null) == getAfter(userPath(memberId)).data.get('handle', null)
           && request.resource.data.giftCount == 0
           && isNow(request.resource.data.joinedAt);
         allow update: if isSelf(memberId)
-          && onlyChanges(['name', 'avatar', 'giftCount'])
+          && onlyChanges(['name', 'avatar', 'handle', 'giftCount'])
           && validName(request.resource.data.name)
           && validAvatar(request.resource.data.avatar)
+          && (!('handle' in request.resource.data.diff(resource.data).affectedKeys())
+            || request.resource.data.handle == getAfter(userPath(memberId)).data.get('handle', null))
           && (request.resource.data.giftCount == resource.data.giftCount
             || request.resource.data.giftCount == resource.data.giftCount + 1);
         allow delete: if isSelf(memberId) || isArtistOf(atelierId);

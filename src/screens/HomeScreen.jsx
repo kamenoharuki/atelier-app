@@ -11,9 +11,13 @@ export default function HomeScreen({
   myUid,
   posts,
   avatars,
+  handles,
   items,
   comments,
   commentQuota,
+  hasMorePosts,
+  morePostsLoading,
+  onLoadMorePosts,
   onReact,
   onComment,
   onToggleDone,
@@ -28,10 +32,14 @@ export default function HomeScreen({
       <PostFeed
         posts={posts}
         avatars={avatars}
+        handles={handles}
         myUid={myUid}
         isArtist={isArtist}
         comments={comments}
         commentQuota={commentQuota}
+        hasMore={hasMorePosts}
+        moreLoading={morePostsLoading}
+        onLoadMore={onLoadMorePosts}
         onReact={onReact}
         onComment={onComment}
       />

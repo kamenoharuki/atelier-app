@@ -23,6 +23,7 @@ import { db } from './config';
 const userRef = (uid) => doc(db, 'users', uid);
 const atelierRef = (atelierId) => doc(db, 'ateliers', atelierId);
 const keyRef = (key) => doc(db, 'atelierKeys', key);
+const handleRef = (handle) => doc(db, 'handles', handle);
 const memberRef = (atelierId, uid) => doc(db, 'ateliers', atelierId, 'members', uid);
 const newDocIn = (atelierId, name) => doc(collection(db, 'ateliers', atelierId, name));
 
@@ -64,11 +65,27 @@ export async function restoreAtelier(uid) {
   if (!(await fetchMyKey(uid))) await changeKey(uid, null, generateKey());
 }
 
+// プロフィール（名前・アバター・@ユーザーネーム）を保存する
+//   ユーザーネームを変えたときは、台帳（handles）の新しい名前を自分のものにし、古い名前を手放す
 export async function saveProfile(uid, user, profile) {
-  await updateDoc(userRef(uid), { name: profile.name, avatar: profile.avatar });
-  // ランキングに表示される名前も揃える（アトリエから外されている場合は無視）
+  const handle = profile.handle || null;
+  const batch = writeBatch(db);
+  batch.update(userRef(uid), { name: profile.name, avatar: profile.avatar, handle });
+  if (handle !== user.handle) {
+    if (handle) {
+      const owner = await getDoc(handleRef(handle));
+      if (owner.exists() && owner.data().uid !== uid) {
+        throw new UserFacingError('このユーザーネームは既に使われています');
+      }
+      batch.set(handleRef(handle), { uid });
+    }
+    if (user.handle) batch.delete(handleRef(user.handle));
+  }
+  await batch.commit();
+
+  // メンバー一覧（タイムラインの表示に使う）の名前なども揃える（アトリエから外されている場合は無視）
   if (user.role === 'fan' && user.atelierId) {
-    await updateDoc(memberRef(user.atelierId, uid), { name: profile.name, avatar: profile.avatar }).catch(
+    await updateDoc(memberRef(user.atelierId, uid), { name: profile.name, avatar: profile.avatar, handle }).catch(
       () => undefined,
     );
   }
@@ -149,6 +166,7 @@ export async function joinAtelier(uid, user, key) {
     key,
     name: user.name,
     avatar: user.avatar,
+    handle: user.handle ?? null,
     giftCount: 0,
     joinedAt: serverTimestamp(),
   });

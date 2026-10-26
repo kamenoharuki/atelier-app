@@ -33,6 +33,9 @@ export default function SettingsScreen({
           <Avatar avatar={profile.avatar} size={56} />
           <div className="settings-profile__text">
             <span className="settings-profile__name">{profile.name}</span>
+            <span className="settings-profile__handle">
+              {profile.handle ? `@${profile.handle}` : 'ユーザーネーム未設定'}
+            </span>
             <span className="settings-profile__role">{ROLE_LABEL[role]}としてログイン中</span>
           </div>
           <button type="button" className="btn btn--secondary" onClick={onEditProfile}>

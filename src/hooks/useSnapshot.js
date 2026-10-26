@@ -61,9 +61,12 @@ export function useDocSnapshot(key, ref, map) {
   return state;
 }
 
-export function useQuerySnapshot(key, q, map) {
+// group を渡すと、同じ group の中で key が変わったとき（件数を増やしたときなど）は
+// 読み込み直す間も前の一覧を表示したままにする（画面が一瞬空になるのを防ぐ）
+export function useQuerySnapshot(key, q, map, group = null) {
   const [state, setState] = useState({
     key: null,
+    group: null,
     data: [],
     loading: false,
     error: false,
@@ -71,21 +74,26 @@ export function useQuerySnapshot(key, q, map) {
 
   useEffect(() => {
     if (!key) return;
-    setState({ key, data: [], loading: true, error: false });
+    setState((prev) => ({ key, group, data: keep(prev) ? prev.data : [], loading: true, error: false }));
     return subscribeWithRetry(
       (onError) =>
         onSnapshot(
           q(),
           (snap) => {
             const data = snap.docs.map((d) => map(d.id, d.data({ serverTimestamps: 'estimate' })));
-            setState({ key, data, loading: false, error: false });
+            setState({ key, group, data, loading: false, error: false });
           },
           onError,
         ),
-      () => setState({ key, data: [], loading: false, error: true }),
+      () => setState({ key, group, data: [], loading: false, error: true }),
     );
   }, [key]);
 
-  if (!key || state.key !== key) return { data: [], loading: Boolean(key), error: false };
+  function keep(prev) {
+    return group !== null && prev.group === group;
+  }
+
+  if (!key) return { data: [], loading: false, error: false };
+  if (state.key !== key) return { data: keep(state) ? state.data : [], loading: true, error: false };
   return state;
 }

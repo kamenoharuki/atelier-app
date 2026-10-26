@@ -77,3 +77,22 @@
   font-size: 11px;
   font-weight: 600;
 }
+
+/* @ユーザーネームの入力欄（先頭に @ を表示） */
+.handle-input {
+  position: relative;
+}
+
+.handle-input__at {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.handle-input .input {
+  padding-left: 30px;
+}

@@ -42,6 +42,9 @@ export default function AtelierApp({ authUser, user }) {
     items,
     members,
     posts,
+    hasMorePosts,
+    morePostsLoading,
+    loadMorePosts,
     notices,
     updates,
     comments,
@@ -144,6 +147,15 @@ export default function AtelierApp({ authUser, user }) {
     return map;
   }, [members, atelierId, artist, uid, user.avatar]);
 
+  // 投稿者の @ユーザーネーム（未設定の人は載らず、uid の先頭8文字が表示される）
+  const handles = useMemo(() => {
+    const map = {};
+    members.forEach((m) => m.handle && (map[m.id] = m.handle));
+    if (atelierId && artist?.handle) map[atelierId] = artist.handle;
+    if (user.handle) map[uid] = user.handle;
+    return map;
+  }, [members, atelierId, artist, uid, user.handle]);
+
   const ranking = members.map((m) => ({ id: m.id, name: m.name, count: m.giftCount, isMe: m.id === uid }));
 
   const renderHome = () => {
@@ -155,9 +167,13 @@ export default function AtelierApp({ authUser, user }) {
         myUid={uid}
         posts={posts}
         avatars={avatars}
+        handles={handles}
         items={items}
         comments={comments}
         commentQuota={commentQuota}
+        hasMorePosts={hasMorePosts}
+        morePostsLoading={morePostsLoading}
+        onLoadMorePosts={loadMorePosts}
         onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
         onComment={(postId, text) => tryRun(api.addComment(atelierId, postId, uid, user, text))}
         onToggleDone={(id) => {

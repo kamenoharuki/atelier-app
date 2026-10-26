@@ -3,7 +3,11 @@
 // ===== 扱うデータの形（Firestore の構造は firestore.rules の冒頭を参照） =====
 //
 // ユーザー（users/{uid}）
-//   { role: 'artist' | 'fan', name, avatar, atelierId（ファンが参加中のアトリエ。アーティストの uid）, lastSeenAt }
+//   { role: 'artist' | 'fan', name, avatar, atelierId（ファンが参加中のアトリエ。アーティストの uid）, lastSeenAt,
+//     handle: 投稿の名前の横に出る @ユーザーネーム（未設定なら null。uid の先頭8文字を代わりに表示） }
+//
+// ユーザーネームの持ち主（handles/{ユーザーネーム}）
+//   { uid }  同じユーザーネームを2人が使えないようにするための台帳
 //
 // アバター
 //   { type: 'preset', preset: 'person' など AVATAR_PRESETS の id } または { type: 'image', src: 画像のデータURL }
@@ -95,6 +99,10 @@ export const COMMENT_DAILY_LIMIT = 3;
 
 // 音楽URLの最大文字数（firestore.rules と合わせる）
 export const MUSIC_URL_MAX = 300;
+
+// @ユーザーネームに使える文字：半角英小文字・数字・_ を3〜15文字（firestore.rules の validHandle と合わせる）
+export const HANDLE_PATTERN = /^[a-z0-9_]{3,15}$/;
+export const HANDLE_MAX = 15;
 
 // 鍵番号の桁数（firestore.rules と合わせる）
 export const KEY_LENGTH = 12;
