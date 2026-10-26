@@ -34,6 +34,15 @@ const artistNoticeText = (notice) => {
   }
 };
 
+// ファンからのコメントのお知らせの文面（どの投稿へのコメントか分かるように、投稿の冒頭も付ける）
+const commentNoticeText = (comment, postText) => {
+  const about = postText ? `「${postText.length > 20 ? postText.slice(0, 20) + '…' : postText}」に` : '';
+  return `${comment.name}さんから${about}コメント：「${comment.text}」`;
+};
+
+// お知らせに並べる最大件数
+const FEED_LIMIT = 100;
+
 export default function AtelierApp({ authUser, user }) {
   const uid = authUser.uid;
   const role = user.role;
@@ -87,14 +96,23 @@ export default function AtelierApp({ authUser, user }) {
     setTab(next);
   };
 
-  // アーティストにはファンからの反応、ファンにはアーティストの更新を通知する
-  const feed = useMemo(
-    () =>
-      role === 'artist'
-        ? notices.map((n) => ({ id: n.id, text: artistNoticeText(n), createdAt: n.createdAt }))
-        : updates.map((u) => ({ id: u.id, text: `${artistName}さんが${u.text}`, createdAt: u.createdAt })),
-    [role, notices, updates, artistName],
-  );
+  // アーティストにはファンからの反応（ギフト・投稿・参加・コメント）、ファンにはアーティストの更新を通知する
+  const feed = useMemo(() => {
+    if (role !== 'artist') {
+      return updates.map((u) => ({ id: u.id, text: `${artistName}さんが${u.text}`, createdAt: u.createdAt }));
+    }
+    // コメント（アーティストへの手紙）は通知用のデータを別に作らず、届いたコメントをそのままお知らせに混ぜる
+    const postTexts = Object.fromEntries(posts.map((p) => [p.id, p.text]));
+    const commentNotices = comments.map((c) => ({
+      id: `comment-${c.id}`,
+      text: commentNoticeText(c, postTexts[c.postId]),
+      createdAt: c.createdAt,
+      postId: c.postId,
+    }));
+    return [...notices.map((n) => ({ id: n.id, text: artistNoticeText(n), createdAt: n.createdAt })), ...commentNotices]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, FEED_LIMIT);
+  }, [role, notices, updates, comments, posts, artistName]);
 
   // 画面を開いた後に届いた通知をトーストで知らせる
   const knownIds = useRef(null);
@@ -226,7 +244,15 @@ export default function AtelierApp({ authUser, user }) {
         <main ref={contentRef} className={`app__content ${detailOpen ? 'app__content--detail' : ''}`}>
           {tab === 'home' && renderHome()}
           {tab === 'notification' && (
-            <NotificationScreen role={role} notices={hasAtelier ? feed : []} ranking={hasAtelier ? ranking : []} />
+            <NotificationScreen
+              role={role}
+              notices={hasAtelier ? feed : []}
+              ranking={hasAtelier ? ranking : []}
+              onOpenPost={(postId) => {
+                setTab('home');
+                openPost(postId);
+              }}
+            />
           )}
           {tab === 'settings' && (
             <SettingsScreen

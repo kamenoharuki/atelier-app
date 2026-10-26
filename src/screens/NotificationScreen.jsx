@@ -1,9 +1,10 @@
 // 通知画面（お知らせ一覧と、ギフトの応援ランキング）
+//   コメントのお知らせ（アーティストのみ）は、押すとその投稿の詳細画面が開く
 import { useState } from 'react';
 import { formatRelative } from '../utils/time';
 import './NotificationScreen.css';
 
-export default function NotificationScreen({ role, notices, ranking }) {
+export default function NotificationScreen({ role, notices, ranking, onOpenPost }) {
   const [subTab, setSubTab] = useState('お知らせ');
 
   return (
@@ -38,15 +39,31 @@ export default function NotificationScreen({ role, notices, ranking }) {
           </p>
         )}
         {subTab === 'お知らせ'
-          ? notices.map((notice) => (
-              <div key={notice.id} className="notice-row glass">
-                <span className="notice-row__dot" aria-hidden="true" />
-                <div className="notice-row__body">
-                  <p>{notice.text}</p>
-                  <span className="notice-row__time">{formatRelative(notice.createdAt)}</span>
+          ? notices.map((notice) => {
+              const body = (
+                <>
+                  <span className="notice-row__dot" aria-hidden="true" />
+                  <div className="notice-row__body">
+                    <p>{notice.text}</p>
+                    <span className="notice-row__time">{formatRelative(notice.createdAt)}</span>
+                  </div>
+                </>
+              );
+              return notice.postId ? (
+                <button
+                  key={notice.id}
+                  type="button"
+                  className="notice-row notice-row--link glass"
+                  onClick={() => onOpenPost(notice.postId)}
+                >
+                  {body}
+                </button>
+              ) : (
+                <div key={notice.id} className="notice-row glass">
+                  {body}
                 </div>
-              </div>
-            ))
+              );
+            })
           : ranking.map((entry, i) => (
               <div
                 key={entry.id}

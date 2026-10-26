@@ -71,6 +71,20 @@
   gap: 12px;
 }
 
+/* 押すと投稿の詳細が開くお知らせ（ファンからのコメント） */
+.notice-row--link {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notice-row--link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .notice-row__dot {
   width: 8px;
   height: 8px;

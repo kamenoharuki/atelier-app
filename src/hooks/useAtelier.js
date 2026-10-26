@@ -157,7 +157,8 @@ export function useAtelier(atelierId, role, uid) {
     comments: comments.data,
     commentQuota: commentQuota.data,
     loading: atelier.loading || artist.loading || items.loading,
-    feedLoading: role === 'artist' ? notices.loading : updates.loading,
+    // お知らせの読み込み中（アーティストのお知らせには届いたコメントも混ざる）
+    feedLoading: role === 'artist' ? notices.loading || comments.loading : updates.loading,
     // 閲覧権限がない（アトリエから外された等）
     denied: atelier.error,
     // 読み込めたが、アトリエのドキュメント自体が無い
