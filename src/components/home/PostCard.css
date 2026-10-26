@@ -112,10 +112,12 @@
 }
 
 .post__comments {
+  /* リアクションが無い投稿（アーティスト本人の投稿）でも右端に置く */
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 32px;
+  height: 28px;
   padding: 0 10px;
   border: none;
   border-radius: var(--radius-pill);

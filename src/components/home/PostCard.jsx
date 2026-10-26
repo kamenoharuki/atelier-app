@@ -36,6 +36,10 @@ export default function PostCard({
     if (detail || e.target.closest('button, a, input, iframe')) return;
     onOpen();
   };
+  // アーティストが自分の投稿を見るときは、リアクションのボタンを出さない
+  const showReactions = !(post.role === 'artist' && post.uid === myUid);
+  const showCommentButton = !detail && post.role === 'artist';
+
   const openByKey = (e) => {
     if (!detail && e.target === e.currentTarget && e.key === 'Enter') onOpen();
   };
@@ -82,16 +86,18 @@ export default function PostCard({
             {formatFull(post.createdAt)}
           </time>
         )}
-        <div className="post__actions">
-          <ReactionBar reactions={post.reactions} myUid={myUid} onReact={onReact} />
-          {/* コメントはアーティストの投稿にだけ付けられる。押すと詳細画面へ */}
-          {!detail && post.role === 'artist' && (
-            <button type="button" className="post__comments" onClick={onOpen} aria-label="コメントを見る・送る">
-              <ChatIcon size={17} />
-              {commentCount > 0 && <span>{commentCount}</span>}
-            </button>
-          )}
-        </div>
+        {(showReactions || showCommentButton) && (
+          <div className="post__actions">
+            {showReactions && <ReactionBar reactions={post.reactions} myUid={myUid} onReact={onReact} />}
+            {/* コメントはアーティストの投稿にだけ付けられる。押すと詳細画面へ */}
+            {showCommentButton && (
+              <button type="button" className="post__comments" onClick={onOpen} aria-label="コメントを見る・送る">
+                <ChatIcon size={17} />
+                {commentCount > 0 && <span>{commentCount}</span>}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
