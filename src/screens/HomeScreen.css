@@ -7,14 +7,6 @@
   padding-bottom: 96px;
 }
 
-/* タイムラインは画面の横幅いっぱいに縦に並べる */
-.home-screen__timeline {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 /* ===== キービジュアル ===== */
 .hero {
   position: relative;
@@ -95,8 +87,4 @@
     width: 52px;
     height: 52px;
   }
-}
-
-.home-screen__empty {
-  margin-top: -8px;
 }

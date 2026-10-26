@@ -1,5 +1,5 @@
 // ホーム画面（アトリエ）
-//   タイムライン → TODO・悩みの一覧（ファンはギフトを贈れる）
+//   タイムライン → TODO・悩みの一覧（ファンはギフトを贈れる）。見出しは付けずにそのまま並べる
 //   ※ 投稿・TODOの追加は＋ボタン（AtelierApp で表示する ComposeButton）から行う
 //     アーティストは左下（投稿 と TODO・悩み）、ファンは右下（投稿のみ）
 import PostFeed from '../components/home/PostFeed';
@@ -13,25 +13,13 @@ export default function HomeScreen({ role, myUid, posts, avatars, items, onReact
 
   return (
     <div className="home-screen">
-      <div className="home-screen__timeline">
-        <div className="section-header">
-          <h2 className="section-header__title">タイムライン</h2>
-        </div>
-        <PostFeed posts={posts} avatars={avatars} myUid={myUid} onReact={onReact} />
-      </div>
+      <PostFeed posts={posts} avatars={avatars} myUid={myUid} onReact={onReact} />
 
-      <div className="section-header">
-        <h2 className="section-header__title">TODO・悩み</h2>
-        <span className="section-header__meta">{items.length}件</span>
-      </div>
-
-      {items.length === 0 && (
-        <p className="card__empty home-screen__empty">
-          {isArtist ? 'まだありません。左下の＋ボタンからTODOや悩みを追加できます。' : 'まだありません。'}
-        </p>
+      {items.length === 0 && isArtist && (
+        <p className="card__empty">まだTODO・悩みはありません。左下の＋ボタンから追加できます。</p>
       )}
 
-      <div className="gallery">
+      <div className="gallery" aria-label="TODO・悩み">
         {sortedItems.map((item) => (
           <TaskCard
             key={item.id}
