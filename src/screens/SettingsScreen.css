@@ -51,9 +51,46 @@
   white-space: nowrap;
 }
 
+.settings-profile__unset {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.settings-profile__handle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .settings-profile__handle {
   font-size: 13px;
   color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* @ユーザーネームの横の小さな「変更」ボタン（押すとユーザーネームの入力欄から編集が始まる） */
+.settings-profile__handle-edit {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.settings-profile__handle-edit:hover {
+  text-decoration: underline;
+}
+
+.settings-profile__handle-edit:focus-visible {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: var(--focus-ring);
 }
 
 .settings-profile__role {

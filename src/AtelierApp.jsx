@@ -67,7 +67,8 @@ export default function AtelierApp({ authUser, user }) {
     missing,
   } = useAtelier(atelierId, role, uid);
   const [tab, setTab] = useState('home');
-  const [isProfileOpen, setProfileOpen] = useState(false);
+  // プロフィール編集を開いているか（開くときに、最初に入力する欄 'name' / 'handle' を入れる）
+  const [profileFocus, setProfileFocus] = useState(null);
   const { toasts, push, dismiss } = useToasts();
   const contentRef = useRef(null);
   const { openPostId, openPost, closePost } = usePostDetail(contentRef);
@@ -152,11 +153,11 @@ export default function AtelierApp({ authUser, user }) {
       },
     );
 
-  const closeProfile = useCallback(() => setProfileOpen(false), []);
+  const closeProfile = useCallback(() => setProfileFocus(null), []);
   const loadKey = useCallback(() => api.fetchMyKey(uid), [uid]);
 
   const logout = async () => {
-    setProfileOpen(false);
+    setProfileFocus(null);
     // ログアウト後は書き込めないので、先にオフラインを記録する
     if (role === 'artist') await api.updatePresence(uid, false).catch(() => undefined);
     signOut(auth);
@@ -164,7 +165,7 @@ export default function AtelierApp({ authUser, user }) {
 
   const saveProfile = async (next) => {
     await api.saveProfile(uid, user, next);
-    setProfileOpen(false);
+    setProfileFocus(null);
   };
 
   const join = async (key) => {
@@ -245,7 +246,7 @@ export default function AtelierApp({ authUser, user }) {
           isOpen={isOpen}
           lives={commentsRemaining}
           livesMax={COMMENT_DAILY_LIMIT}
-          onOpenProfile={() => setProfileOpen(true)}
+          onOpenProfile={() => setProfileFocus('name')}
           onLogout={logout}
         />
 
@@ -271,7 +272,9 @@ export default function AtelierApp({ authUser, user }) {
               hasAtelier={hasAtelier}
               isOpen={isOpen}
               onChangeOpen={(next) => api.setAtelierOpen(uid, next)}
-              onEditProfile={() => setProfileOpen(true)}
+              myUid={uid}
+              onEditProfile={() => setProfileFocus('name')}
+              onEditHandle={() => setProfileFocus('handle')}
               onLogout={logout}
               onChangePassword={(password) => updatePassword(authUser, password)}
               onJoin={join}
@@ -295,7 +298,7 @@ export default function AtelierApp({ authUser, user }) {
         <TabBar active={tab} onChange={changeTab} badges={{ notification: hasAtelier ? unread : 0 }} />
       </div>
 
-      {isProfileOpen && <ProfileModal profile={user} onSave={saveProfile} onClose={closeProfile} />}
+      {profileFocus && <ProfileModal profile={user} focus={profileFocus} onSave={saveProfile} onClose={closeProfile} />}
       <Toaster toasts={toasts} onDismiss={dismiss} />
     </div>
   );

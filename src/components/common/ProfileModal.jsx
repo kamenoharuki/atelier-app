@@ -1,4 +1,5 @@
 // 名前・@ユーザーネーム・アバターを編集するダイアログ
+//   focus: 開いたときに最初に入力する欄（'name' か 'handle'）
 import { useEffect, useRef, useState } from 'react';
 import { AVATAR_PRESETS, HANDLE_MAX, HANDLE_PATTERN } from '../../constants';
 import { errorMessage } from '../../utils/errors';
@@ -10,23 +11,24 @@ import './ProfileModal.css';
 const NAME_MAX = 20;
 const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 
-export default function ProfileModal({ profile, onSave, onClose }) {
+export default function ProfileModal({ profile, focus = 'name', onSave, onClose }) {
   const [name, setName] = useState(profile.name);
   const [avatar, setAvatar] = useState(profile.avatar);
   const [handle, setHandle] = useState(profile.handle ?? '');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const nameRef = useRef(null);
+  const handleRef = useRef(null);
   const fileRef = useRef(null);
 
   useEffect(() => {
-    nameRef.current?.focus();
+    (focus === 'handle' ? handleRef : nameRef).current?.focus();
     const onKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [onClose]);
+  }, [focus, onClose]);
 
   const handleFile = (e) => {
     const file = e.target.files?.[0];
@@ -124,6 +126,7 @@ export default function ProfileModal({ profile, onSave, onClose }) {
               @
             </span>
             <input
+              ref={handleRef}
               className="input"
               value={handle}
               maxLength={HANDLE_MAX}

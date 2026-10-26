@@ -12,12 +12,14 @@ import './SettingsScreen.css';
 export default function SettingsScreen({
   role,
   profile,
+  myUid,
   email,
   artistName,
   hasAtelier,
   isOpen,
   onChangeOpen,
   onEditProfile,
+  onEditHandle,
   onLogout,
   onChangePassword,
   onJoin,
@@ -33,8 +35,13 @@ export default function SettingsScreen({
           <Avatar avatar={profile.avatar} size={56} />
           <div className="settings-profile__text">
             <span className="settings-profile__name">{profile.name}</span>
-            <span className="settings-profile__handle">
-              {profile.handle ? `@${profile.handle}` : 'ユーザーネーム未設定'}
+            {/* 未設定のときは、いま投稿に出ている自動のID（uid の先頭8文字）を表示する */}
+            {!profile.handle && <span className="settings-profile__unset">ユーザーネーム未設定</span>}
+            <span className="settings-profile__handle-row">
+              <span className="settings-profile__handle">@{profile.handle ?? myUid.slice(0, 8)}</span>
+              <button type="button" className="settings-profile__handle-edit" onClick={onEditHandle}>
+                {profile.handle ? '変更' : '設定する'}
+              </button>
             </span>
             <span className="settings-profile__role">{ROLE_LABEL[role]}としてログイン中</span>
           </div>
