@@ -1,14 +1,18 @@
 // 投稿の入力欄（作成ダイアログの中身）
-//   アーティストは 画像の添付 / 解読モード（必要人数） / 期限後のアーカイブ を選べる
+//   全員が 音楽URL（Spotify / Apple Music）を付けられる
+//   アーティストは 画像の添付 / 解読モード（必要人数） / 期限後のアーカイブ も選べる
 import { useEffect, useRef, useState } from 'react';
-import { DECODE_GOAL_MAX, POST_LIFETIME_DAYS, POST_MAX } from '../../constants';
+import { DECODE_GOAL_MAX, MUSIC_URL_MAX, POST_LIFETIME_DAYS, POST_MAX } from '../../constants';
 import { resizeImageToFit } from '../../utils/image';
+import { parseMusicUrl } from '../../utils/music';
+import MusicEmbed from './MusicEmbed';
 import Avatar from '../common/Avatar';
 import { CloseIcon, UploadIcon } from '../common/icons';
 
 export default function PostForm({ isArtist, me, placeholder, onSubmit }) {
   const [draft, setDraft] = useState('');
   const [image, setImage] = useState(null);
+  const [musicDraft, setMusicDraft] = useState('');
   const [decode, setDecode] = useState(false);
   const [goal, setGoal] = useState('10');
   const [isArchive, setArchive] = useState(true);
@@ -19,7 +23,9 @@ export default function PostForm({ isArtist, me, placeholder, onSubmit }) {
   const text = draft.trim();
   const goalNumber = Number(goal);
   const goalValid = Number.isInteger(goalNumber) && goalNumber >= 1 && goalNumber <= DECODE_GOAL_MAX;
-  const canSubmit = (text || image) && (!decode || goalValid);
+  const music = musicDraft.trim();
+  const musicValid = !music || Boolean(parseMusicUrl(music));
+  const canSubmit = (text || image || music) && musicValid && (!decode || goalValid);
 
   // 開いたらすぐ入力できるように
   useEffect(() => inputRef.current?.focus(), []);
@@ -44,7 +50,8 @@ export default function PostForm({ isArtist, me, placeholder, onSubmit }) {
 
   const submit = () => {
     if (!canSubmit) return;
-    onSubmit(text, isArtist ? { image, decodeGoal: decode ? goalNumber : null, isArchive } : {});
+    const artistOptions = isArtist ? { image, decodeGoal: decode ? goalNumber : null, isArchive } : {};
+    onSubmit(text, { music: music || null, ...artistOptions });
   };
 
   // Ctrl / ⌘ + Enter で投稿（Enter だけなら改行）
@@ -79,6 +86,22 @@ export default function PostForm({ isArtist, me, placeholder, onSubmit }) {
               </button>
             </div>
           )}
+          <input
+            type="url"
+            className="input composer__music"
+            inputMode="url"
+            maxLength={MUSIC_URL_MAX}
+            placeholder="音楽URL（Spotify または Apple Music）"
+            value={musicDraft}
+            onChange={(e) => setMusicDraft(e.target.value)}
+            aria-label="音楽URL"
+          />
+          {music && !musicValid && (
+            <p className="field__error">
+              Spotify または Apple Music の曲・アルバム・プレイリストのURLを入力してください
+            </p>
+          )}
+          {music && musicValid && <MusicEmbed url={music} />}
         </div>
       </div>
 

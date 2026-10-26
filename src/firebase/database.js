@@ -15,7 +15,9 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore';
-import { KEY_LENGTH, POST_LIFETIME_DAYS, REACTIONS } from '../constants';
+import { COMMENT_DAILY_LIMIT, KEY_LENGTH, POST_LIFETIME_DAYS, REACTIONS } from '../constants';
+import { UserFacingError } from '../utils/errors';
+import { todayJst } from '../utils/time';
 import { db } from './config';
 
 const userRef = (uid) => doc(db, 'users', uid);
@@ -184,9 +186,10 @@ export async function sendGift(atelierId, uid, fromName, item) {
 /* ===== タイムライン ===== */
 
 // 投稿する。アーティストの投稿はファンへ、ファンの投稿はアーティストへ通知する
-//   options（アーティストのみ）: image 画像のデータURL / decodeGoal 解読に必要な人数（解読モード） / isArchive
+//   options: music 音楽URL（全員）
+//            image 画像のデータURL / decodeGoal 解読に必要な人数（解読モード） / isArchive（ここまでアーティストのみ）
 export async function createPost(atelierId, uid, user, text, options = {}) {
-  const { image, decodeGoal, isArchive = false } = options;
+  const { music, image, decodeGoal, isArchive = false } = options;
   const post = {
     uid,
     name: user.name,
@@ -200,10 +203,11 @@ export async function createPost(atelierId, uid, user, text, options = {}) {
   };
   if (image) post.image = image;
   if (image && decodeGoal) post.decode = { goal: decodeGoal };
+  if (music) post.music = music;
 
   const batch = writeBatch(db);
   batch.set(newDocIn(atelierId, 'posts'), post);
-  const summary = text || (decodeGoal ? '解読モードの画像' : '画像');
+  const summary = text || (image ? (decodeGoal ? '解読モードの画像' : '画像') : '音楽');
   if (user.role === 'artist') {
     if (text) batch.update(atelierRef(atelierId), { mood: text });
     batch.set(newDocIn(atelierId, 'updates'), {
@@ -221,6 +225,30 @@ export async function createPost(atelierId, uid, user, text, options = {}) {
     });
   }
   await batch.commit();
+}
+
+// アーティストの投稿にコメント（アーティストへの手紙）を送る。ファンのみ・1日 COMMENT_DAILY_LIMIT 回まで
+//   その日の回数（commentQuota）を1増やすのと同時に書き込む。コメントのIDは「uid_日付_何回目」で、
+//   ルールがこのIDと回数を照らし合わせるので、上限を超えて送ることはできない
+export async function addComment(atelierId, postId, uid, user, text) {
+  const quotaRef = doc(db, 'ateliers', atelierId, 'commentQuota', uid);
+  await runTransaction(db, async (tx) => {
+    const day = todayJst();
+    const quota = (await tx.get(quotaRef)).data();
+    const count = quota?.day === day ? quota.count + 1 : 1;
+    if (count > COMMENT_DAILY_LIMIT) {
+      throw new UserFacingError(`本日のコメント上限（${COMMENT_DAILY_LIMIT}回）に達しました`);
+    }
+    tx.set(quotaRef, { day, count });
+    tx.set(doc(db, 'ateliers', atelierId, 'comments', `${uid}_${day}_${count}`), {
+      uid,
+      name: user.name,
+      role: user.role,
+      postId,
+      text,
+      createdAt: serverTimestamp(),
+    });
+  });
 }
 
 // 投稿へのリアクションを付ける / 外す（自分の分だけ書き換える）

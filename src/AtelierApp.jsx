@@ -36,8 +36,21 @@ export default function AtelierApp({ authUser, user }) {
   const role = user.role;
   const atelierId = role === 'artist' ? uid : user.atelierId;
 
-  const { atelier, artist, items, members, posts, notices, updates, loading, feedLoading, denied, missing } =
-    useAtelier(atelierId, role);
+  const {
+    atelier,
+    artist,
+    items,
+    members,
+    posts,
+    notices,
+    updates,
+    comments,
+    commentQuota,
+    loading,
+    feedLoading,
+    denied,
+    missing,
+  } = useAtelier(atelierId, role, uid);
   const [tab, setTab] = useState('home');
   const [isProfileOpen, setProfileOpen] = useState(false);
   const { toasts, push, dismiss } = useToasts();
@@ -90,6 +103,16 @@ export default function AtelierApp({ authUser, user }) {
     [push],
   );
 
+  // run と同じだが、成功したかどうか（true / false）を返す
+  const tryRun = (action) =>
+    action.then(
+      () => true,
+      (e) => {
+        push(errorMessage(e), 'error');
+        return false;
+      },
+    );
+
   const closeProfile = useCallback(() => setProfileOpen(false), []);
   const loadKey = useCallback(() => api.fetchMyKey(uid), [uid]);
 
@@ -133,7 +156,10 @@ export default function AtelierApp({ authUser, user }) {
         posts={posts}
         avatars={avatars}
         items={items}
+        comments={comments}
+        commentQuota={commentQuota}
         onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
+        onComment={(postId, text) => tryRun(api.addComment(atelierId, postId, uid, user, text))}
         onToggleDone={(id) => {
           const item = findItem(id);
           if (item) run(api.toggleDone(atelierId, item));

@@ -19,6 +19,10 @@ const AUTH_MESSAGES = {
 };
 
 export function errorMessage(error, fallback = 'エラーが発生しました。もう一度お試しください') {
+  if (error instanceof UserFacingError) return error.message;
   if (error instanceof FirebaseError) return AUTH_MESSAGES[error.code] ?? fallback;
   return fallback;
 }
+
+// アプリ側で決めた制限（コメントの回数など）に引っかかったときのエラー。message をそのまま画面に出す
+export class UserFacingError extends Error {}

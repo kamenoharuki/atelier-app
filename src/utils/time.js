@@ -12,3 +12,10 @@ export function formatRelative(date, now = new Date()) {
   if (days < 7) return `${days}日前`;
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
+
+// 日本時間の「今日」を 20261026 のような数字で返す（コメントの1日の回数を数えるのに使う）
+//   firestore.rules の todayJst() と同じ計算にすること
+export function todayJst(now = new Date()) {
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return jst.getUTCFullYear() * 10000 + (jst.getUTCMonth() + 1) * 100 + jst.getUTCDate();
+}

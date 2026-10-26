@@ -6,14 +6,35 @@ import PostFeed from '../components/home/PostFeed';
 import TaskCard from '../components/home/TaskCard';
 import './HomeScreen.css';
 
-export default function HomeScreen({ role, myUid, posts, avatars, items, onReact, onToggleDone, onSendGift }) {
+export default function HomeScreen({
+  role,
+  myUid,
+  posts,
+  avatars,
+  items,
+  comments,
+  commentQuota,
+  onReact,
+  onComment,
+  onToggleDone,
+  onSendGift,
+}) {
   const isArtist = role === 'artist';
 
   const sortedItems = [...items].sort((a, b) => Number(a.done) - Number(b.done));
 
   return (
     <div className="home-screen">
-      <PostFeed posts={posts} avatars={avatars} myUid={myUid} onReact={onReact} />
+      <PostFeed
+        posts={posts}
+        avatars={avatars}
+        myUid={myUid}
+        isArtist={isArtist}
+        comments={comments}
+        commentQuota={commentQuota}
+        onReact={onReact}
+        onComment={onComment}
+      />
 
       {items.length === 0 && (
         <p className="card__empty">

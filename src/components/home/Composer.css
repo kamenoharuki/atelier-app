@@ -87,6 +87,16 @@
   box-shadow: var(--focus-ring);
 }
 
+/* 音楽URLの入力欄と、その下の試聴プレイヤー */
+.composer__music {
+  height: 38px;
+  font-size: 14px;
+}
+
+.composer__main .music-embed {
+  margin-top: 0;
+}
+
 /* 添付した画像のプレビュー */
 .composer__preview {
   position: relative;

@@ -6,6 +6,7 @@ import { toDate, useDocSnapshot, useQuerySnapshot } from './useSnapshot';
 
 const NOTICE_LIMIT = 50;
 const POST_LIMIT = 100;
+const COMMENT_LIMIT = 300;
 
 const mapUser = (data) => ({
   role: data.role,
@@ -20,7 +21,7 @@ export function useUserDoc(uid) {
 }
 
 // アトリエ1つ分のデータをまとめてリアルタイム購読する
-export function useAtelier(atelierId, role) {
+export function useAtelier(atelierId, role, uid) {
   const atelier = useDocSnapshot(
     atelierId,
     () => doc(db, 'ateliers', atelierId),
@@ -73,6 +74,7 @@ export function useAtelier(atelierId, role) {
         reactions: data.reactions ?? {},
         image: data.image ?? null,
         decodeGoal: data.decode?.goal ?? null,
+        music: data.music ?? null,
         isArchive: Boolean(data.isArchive),
         createdAt,
         // 以前の投稿には expiresAt が無いので、作成日時から計算する
@@ -101,6 +103,33 @@ export function useAtelier(atelierId, role) {
     (id, data) => ({ id, kind: data.kind, text: data.text ?? '', createdAt: toDate(data.createdAt) ?? new Date() }),
   );
 
+  // コメント（アーティストへの手紙）。アーティストは全員分、ファンは自分が書いた分だけ読める
+  const comments = useQuerySnapshot(
+    atelierId && uid ? `${atelierId}/comments/${role}/${uid}` : null,
+    () => {
+      const ref = collection(db, 'ateliers', atelierId, 'comments');
+      // ファンは「自分の分」と条件を付けないとルールで拒否される（並べ替えは画面側で行う）
+      return role === 'artist'
+        ? query(ref, orderBy('createdAt', 'desc'), limit(COMMENT_LIMIT))
+        : query(ref, where('uid', '==', uid), limit(COMMENT_LIMIT));
+    },
+    (id, data) => ({
+      id,
+      uid: data.uid,
+      name: data.name ?? '',
+      postId: data.postId,
+      text: data.text ?? '',
+      createdAt: toDate(data.createdAt) ?? new Date(),
+    }),
+  );
+
+  // 今日のコメント回数（ファンのみ）
+  const commentQuota = useDocSnapshot(
+    atelierId && uid && role === 'fan' ? `${atelierId}/commentQuota/${uid}` : null,
+    () => doc(db, 'ateliers', atelierId, 'commentQuota', uid),
+    (data) => ({ day: data.day, count: data.count ?? 0 }),
+  );
+
   return {
     atelier: atelier.data,
     artist: artist.data,
@@ -109,6 +138,8 @@ export function useAtelier(atelierId, role) {
     posts: posts.data,
     notices: notices.data,
     updates: updates.data,
+    comments: comments.data,
+    commentQuota: commentQuota.data,
     loading: atelier.loading || artist.loading || items.loading,
     feedLoading: role === 'artist' ? notices.loading : updates.loading,
     // 閲覧権限がない（アトリエから外された等）

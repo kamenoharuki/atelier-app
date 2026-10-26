@@ -1,0 +1,16 @@
+.music-embed {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(4, 16, 50, 0.45);
+}
+
+.music-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--color-primary);
+  overflow-wrap: anywhere;
+}

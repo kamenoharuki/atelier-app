@@ -19,7 +19,15 @@
 //     image: 画像のデータURL（アーティストのみ・任意）,
 //     decode: { goal: 解読に必要な人数 }（解読モードのときだけ。画像付きの投稿のみ）,
 //     expiresAt: 作成から7日後（これを過ぎるとタイムラインに出なくなる）,
-//     isArchive: 期限後にガチャのアーカイブへ入れる投稿か（アーティストが選ぶ） }
+//     isArchive: 期限後にガチャのアーカイブへ入れる投稿か（アーティストが選ぶ）,
+//     music: Spotify / Apple Music の URL（任意。投稿カードに埋め込みプレイヤーを出す） }
+//
+// コメント（ateliers/{id}/comments/{ファンのuid_日付_その日の何回目}）
+//   アーティストの投稿へ、ファンが送る「アーティストへの手紙」。アーティストと書いた本人にしか見えない
+//   { id, uid, name, role: 'fan', postId: どの投稿へのコメントか, text, createdAt }
+//
+// コメントの回数（ateliers/{id}/commentQuota/{ファンのuid}）
+//   { day: 日本時間の日付（20261026 のような数字）, count: その日に送った回数（最大 COMMENT_DAILY_LIMIT） }
 //
 // 通知
 //   アーティスト向け（notices）: { kind: 'gift' | 'post' | 'join' | 'cheer'（旧仕様）, fromName, itemText, message, createdAt }
@@ -78,6 +86,15 @@ export const DECODE_GOAL_MAX = 1000;
 
 // タイムラインの投稿の最大文字数（firestore.rules と合わせる）
 export const POST_MAX = 140;
+
+// コメントの最大文字数（firestore.rules と合わせる）
+export const COMMENT_MAX = 140;
+
+// ファン1人が1日（日本時間）に送れるコメントの回数（firestore.rules と合わせる）
+export const COMMENT_DAILY_LIMIT = 3;
+
+// 音楽URLの最大文字数（firestore.rules と合わせる）
+export const MUSIC_URL_MAX = 300;
 
 // 鍵番号の桁数（firestore.rules と合わせる）
 export const KEY_LENGTH = 12;

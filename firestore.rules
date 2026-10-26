@@ -7,6 +7,9 @@ rules_version = '2';
 //     items/{itemId}                    TODO / 悩み
 //     posts/{postId}                    ホームのタイムライン（アーティストのひとこと・ファンの投稿。メンバー全員が閲覧可）
 //                                       画像・解読モード（decode.goal）はアーティストのみ。expiresAt（7日後）を過ぎるとタイムラインに出ない
+//                                       音楽URL（music。Spotify / Apple Music）は全員が付けられる
+//     comments/{uid_日付_回数}          アーティストの投稿へのコメント（アーティストへの手紙。アーティストと書いた本人だけが閲覧可）
+//     commentQuota/{fanUid}             ファンがその日に送ったコメントの回数（1日3回まで）
 //     members/{fanUid}                  参加中のファン（応援回数つき）
 //     notices/{id}                      ファン → アーティストへの通知（ギフト・応援・参加）
 //     updates/{id}                      アーティスト → ファンへの通知（ステータス・ひとこと・タスク）
@@ -73,6 +76,18 @@ service cloud.firestore {
     function validReactions(list) {
       return list is list && list.size() > 0 && list.size() <= 4
         && list.hasOnly(['❤️', '🔥', '👏', '👍']);
+    }
+
+    // 投稿に付けられる音楽URL（Spotify / Apple Music のみ。src/constants.js の MUSIC_URL_MAX と合わせる）
+    function validMusic(url) {
+      return url is string && url.size() <= 300
+        && url.matches('^https://(open[.]spotify[.]com|music[.]apple[.]com)/[^ ]+$');
+    }
+
+    // 日本時間の今日を 20261026 のような数字にする（src/utils/time.js の todayJst と同じ計算）
+    function todayJst() {
+      let t = request.time + duration.value(9, 'h');
+      return t.year() * 10000 + t.month() * 100 + t.day();
     }
 
     match /users/{uid} {
@@ -169,15 +184,16 @@ service cloud.firestore {
       match /posts/{postId} {
         allow read: if canView(atelierId);
         // 名前とロールは本人のプロフィールと一致させる（なりすまし防止）
-        // 本文は140文字まで（画像付きなら空でもよい）。画像・解読モード・アーカイブ指定はアーティストのみ
+        // 本文は140文字まで（画像か音楽付きなら空でもよい）。画像・解読モード・アーカイブ指定はアーティストのみ
         allow create: if canView(atelierId)
-          && request.resource.data.keys().hasOnly(['uid', 'name', 'role', 'text', 'reactions', 'createdAt', 'expiresAt', 'isArchive', 'image', 'decode'])
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'role', 'text', 'reactions', 'createdAt', 'expiresAt', 'isArchive', 'image', 'decode', 'music'])
           && request.resource.data.uid == request.auth.uid
           && request.resource.data.name == get(userPath(request.auth.uid)).data.name
           && request.resource.data.role == get(userPath(request.auth.uid)).data.role
           && request.resource.data.text is string
           && request.resource.data.text.size() <= 140
-          && (request.resource.data.text.size() > 0 || 'image' in request.resource.data)
+          && (request.resource.data.text.size() > 0 || 'image' in request.resource.data || 'music' in request.resource.data)
+          && (!('music' in request.resource.data) || validMusic(request.resource.data.music))
           && request.resource.data.get('reactions', {}) == {}
           && isNow(request.resource.data.createdAt)
           && validExpiry(request.resource.data.expiresAt)
@@ -201,6 +217,43 @@ service cloud.firestore {
           && request.resource.data.reactions.diff(resource.data.get('reactions', {})).affectedKeys().hasOnly([request.auth.uid])
           && (!(request.auth.uid in request.resource.data.reactions)
             || validReactions(request.resource.data.reactions[request.auth.uid]));
+      }
+
+      // コメント（アーティストへの手紙）：ファンだけが、アーティストの投稿に送れる
+      //   ドキュメントIDは「uid_日付_その日の何回目」。回数（commentQuota）を1増やすのと同時に書き込み、
+      //   IDの回数と commentQuota の回数が一致することを確かめるので、1日3回を超えて送ることはできない
+      //   読めるのはアーティストと、書いた本人だけ（ファン同士では見えない）
+      match /comments/{commentId} {
+        allow read: if isArtistOf(atelierId)
+          || (isMemberOf(atelierId) && resource.data.uid == request.auth.uid);
+        allow create: if isMemberOf(atelierId)
+          && get(userPath(request.auth.uid)).data.role == 'fan'
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'role', 'postId', 'text', 'createdAt'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.name == get(userPath(request.auth.uid)).data.name
+          && request.resource.data.role == 'fan'
+          && request.resource.data.postId is string
+          && get(/databases/$(database)/documents/ateliers/$(atelierId)/posts/$(request.resource.data.postId)).data.role == 'artist'
+          && shortText(request.resource.data.text, 140)
+          && isNow(request.resource.data.createdAt)
+          && getAfter(/databases/$(database)/documents/ateliers/$(atelierId)/commentQuota/$(request.auth.uid)).data.day == todayJst()
+          && commentId == request.auth.uid + '_' + string(todayJst()) + '_'
+            + string(getAfter(/databases/$(database)/documents/ateliers/$(atelierId)/commentQuota/$(request.auth.uid)).data.count);
+      }
+
+      // その日のコメント回数：本人だけが、1ずつ増やせる（日付が変わったら 1 から数え直す）。最大3回
+      match /commentQuota/{fanUid} {
+        allow read: if isSelf(fanUid);
+        allow create: if isSelf(fanUid) && isMemberOf(atelierId)
+          && request.resource.data.keys().hasOnly(['day', 'count'])
+          && request.resource.data.day == todayJst()
+          && request.resource.data.count == 1;
+        allow update: if isSelf(fanUid) && isMemberOf(atelierId)
+          && request.resource.data.keys().hasOnly(['day', 'count'])
+          && request.resource.data.day == todayJst()
+          && request.resource.data.count <= 3
+          && ((resource.data.day == todayJst() && request.resource.data.count == resource.data.count + 1)
+            || (resource.data.day != todayJst() && request.resource.data.count == 1));
       }
 
       match /notices/{noticeId} {
