@@ -1,5 +1,4 @@
 // 設定画面（プロフィール・参加中のアトリエ／アトリエの開放と鍵番号・アカウント・ログアウト）
-import { ROLE_LABEL } from '../constants';
 import Avatar from '../components/common/Avatar';
 import JoinAtelierForm from '../components/common/JoinAtelierForm';
 import { LogoutIcon, PencilIcon } from '../components/common/icons';
@@ -43,7 +42,6 @@ export default function SettingsScreen({
                 {profile.handle ? '変更' : '設定する'}
               </button>
             </span>
-            <span className="settings-profile__role">{ROLE_LABEL[role]}としてログイン中</span>
           </div>
           <button type="button" className="btn btn--secondary" onClick={onEditProfile}>
             <PencilIcon size={14} />

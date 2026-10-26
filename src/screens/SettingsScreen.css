@@ -93,11 +93,6 @@
   box-shadow: var(--focus-ring);
 }
 
-.settings-profile__role {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
 .settings-row {
   display: flex;
   align-items: center;
