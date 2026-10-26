@@ -1,4 +1,10 @@
+/* タイムラインは画面の端から端まで。TODO・悩みの一覧だけ余白を付ける */
 .home-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-screen__tasks {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -61,8 +67,9 @@
 }
 
 @media (min-width: 900px) {
-  .home-screen {
+  .home-screen__tasks {
     padding: var(--space-xl);
+    padding-bottom: 96px;
   }
 
   .gallery {
@@ -71,8 +78,9 @@
 }
 
 @media (max-width: 480px) {
-  .home-screen {
+  .home-screen__tasks {
     padding: var(--space-md);
+    padding-bottom: 96px;
     gap: var(--space-md);
   }
 

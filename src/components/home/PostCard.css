@@ -1,0 +1,146 @@
+/* 投稿1件。X のように、投稿どうしは細い線で区切る */
+.post {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.post.is-artist {
+  background: var(--color-primary-soft);
+}
+
+/* タイムラインの投稿は押すと詳細が開く */
+.post.is-link {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.post.is-link:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.post.is-artist.is-link:hover {
+  background: rgba(60, 120, 240, 0.2);
+}
+
+.post.is-link:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+}
+
+.post__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.post__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.post__name {
+  font-weight: 700;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.post__badge {
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-fill);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-on-primary);
+}
+
+.post__id {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.post__time {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* アーティストにだけ見える、期限切れ（ファンには非表示）の印 */
+.post__expired {
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.post__text {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 詳細画面では本文を大きく、日時はすべて表示する */
+.post.is-detail .post__text {
+  font-size: 17px;
+}
+
+.post__full-time {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* リアクションとコメントボタンの行 */
+.post__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.post__actions .reaction-bar {
+  margin-top: 0;
+}
+
+.post__comments {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.post__comments:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.post__comments:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 480px) {
+  .post {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

@@ -110,3 +110,32 @@
     display: none;
   }
 }
+
+/* ファンの「今日あと何回コメントできるか」（ゲームのライフ風のハート） */
+.life-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+}
+
+.life-meter__heart {
+  display: inline-flex;
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.life-meter__heart.is-full {
+  color: #ff6b8a;
+  opacity: 1;
+  animation: life-beat 0.3s ease-out;
+}
+
+@keyframes life-beat {
+  50% {
+    transform: scale(1.2);
+  }
+}

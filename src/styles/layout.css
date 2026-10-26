@@ -28,6 +28,12 @@
   padding: var(--space-sm) 0 var(--space-xl);
 }
 
+/* 投稿の詳細画面：中身のスクロールと下のコメント入力欄は詳細画面の中で行う */
+.app__content--detail {
+  padding: 0;
+  overflow: hidden;
+}
+
 @media (min-width: 768px) {
   .app {
     border-left: 1px solid var(--color-border);

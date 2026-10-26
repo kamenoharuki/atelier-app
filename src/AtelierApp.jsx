@@ -10,12 +10,15 @@ import HomeScreen from './screens/HomeScreen';
 import NoAtelierScreen from './screens/NoAtelierScreen';
 import NotificationScreen from './screens/NotificationScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import { COMMENT_DAILY_LIMIT } from './constants';
 import { useAtelier } from './hooks/useAtelier';
+import { usePostDetail } from './hooks/usePostDetail';
 import { usePresence } from './hooks/usePresence';
 import { useToasts } from './hooks/useToasts';
 import * as api from './firebase/database';
 import { auth } from './firebase/config';
 import { errorMessage } from './utils/errors';
+import { todayJst } from './utils/time';
 
 // アーティストに届く通知の文面
 const artistNoticeText = (notice) => {
@@ -57,6 +60,8 @@ export default function AtelierApp({ authUser, user }) {
   const [tab, setTab] = useState('home');
   const [isProfileOpen, setProfileOpen] = useState(false);
   const { toasts, push, dismiss } = useToasts();
+  const contentRef = useRef(null);
+  const { openPostId, openPost, closePost } = usePostDetail(contentRef);
 
   const isOpen = Boolean(atelier?.isOpen);
   // アーティスト本人は、見ている時点でオンライン
@@ -68,6 +73,19 @@ export default function AtelierApp({ authUser, user }) {
   }, [role, missing, uid]);
   const artistName = artist?.name ?? '';
   const hasAtelier = Boolean(atelierId) && !denied;
+
+  // 詳細画面で開いている投稿（期限切れなどで見つからなければタイムラインに戻る）
+  const openedPost = openPostId ? (posts.find((p) => p.id === openPostId) ?? null) : null;
+  const detailOpen = tab === 'home' && hasAtelier && !loading && Boolean(openedPost);
+
+  // ファンが今日あと何回コメントできるか（ヘッダーのライフと詳細画面に表示）
+  const usedToday = commentQuota?.day === todayJst() ? commentQuota.count : 0;
+  const commentsRemaining = role === 'fan' && hasAtelier ? Math.max(COMMENT_DAILY_LIMIT - usedToday, 0) : null;
+
+  const changeTab = (next) => {
+    if (openPostId) closePost();
+    setTab(next);
+  };
 
   // アーティストにはファンからの反応、ファンにはアーティストの更新を通知する
   const feed = useMemo(
@@ -170,10 +188,13 @@ export default function AtelierApp({ authUser, user }) {
         handles={handles}
         items={items}
         comments={comments}
-        commentQuota={commentQuota}
+        commentsRemaining={commentsRemaining}
+        openPost={detailOpen ? openedPost : null}
         hasMorePosts={hasMorePosts}
         morePostsLoading={morePostsLoading}
         onLoadMorePosts={loadMorePosts}
+        onOpenPost={openPost}
+        onClosePost={closePost}
         onReact={(postId, emoji, mine) => run(api.toggleReaction(atelierId, postId, uid, emoji, mine))}
         onComment={(postId, text) => tryRun(api.addComment(atelierId, postId, uid, user, text))}
         onToggleDone={(id) => {
@@ -196,11 +217,13 @@ export default function AtelierApp({ authUser, user }) {
           profile={user}
           showStatus={role === 'artist' && hasAtelier}
           isOpen={isOpen}
+          lives={commentsRemaining}
+          livesMax={COMMENT_DAILY_LIMIT}
           onOpenProfile={() => setProfileOpen(true)}
           onLogout={logout}
         />
 
-        <main className="app__content">
+        <main ref={contentRef} className={`app__content ${detailOpen ? 'app__content--detail' : ''}`}>
           {tab === 'home' && renderHome()}
           {tab === 'notification' && (
             <NotificationScreen role={role} notices={hasAtelier ? feed : []} ranking={hasAtelier ? ranking : []} />
@@ -225,7 +248,7 @@ export default function AtelierApp({ authUser, user }) {
           )}
         </main>
 
-        {tab === 'home' && hasAtelier && !loading && (
+        {tab === 'home' && hasAtelier && !loading && !detailOpen && (
           <ComposeButton
             isArtist={role === 'artist'}
             me={user}
@@ -235,7 +258,7 @@ export default function AtelierApp({ authUser, user }) {
           />
         )}
 
-        <TabBar active={tab} onChange={setTab} badges={{ notification: hasAtelier ? unread : 0 }} />
+        <TabBar active={tab} onChange={changeTab} badges={{ notification: hasAtelier ? unread : 0 }} />
       </div>
 
       {isProfileOpen && <ProfileModal profile={user} onSave={saveProfile} onClose={closeProfile} />}
